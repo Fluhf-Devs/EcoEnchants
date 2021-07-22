@@ -3,10 +3,8 @@ package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
-import com.willfp.ecoenchants.proxy.proxies.CooldownProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
+import com.willfp.ecoenchants.enchantments.util.EnchantmentUtils;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +14,7 @@ public class Cleave extends EcoEnchant {
                 "cleave", EnchantmentType.NORMAL
         );
     }
+
     @Override
     public void onMeleeAttack(@NotNull final LivingEntity attacker,
                               @NotNull final LivingEntity victim,
@@ -25,9 +24,7 @@ public class Cleave extends EcoEnchant {
             return;
         }
 
-        if (attacker instanceof Player
-                && ProxyUtils.getProxy(CooldownProxy.class).getAttackCooldown((Player) attacker) != 1.0f
-                && !this.getConfig().getBool(EcoEnchants.CONFIG_LOCATION + "allow-not-fully-charged")) {
+        if (!EnchantmentUtils.isFullyChargeIfRequired(this, attacker)) {
             return;
         }
 
@@ -41,7 +38,7 @@ public class Cleave extends EcoEnchant {
                 .filter(entity -> !entity.equals(attacker))
                 .forEach(entity -> {
                     entity.setMetadata("cleaved", this.getPlugin().getMetadataValueFactory().create(true));
-                    ((LivingEntity) entity).damage(damage, attacker);
+                    this.getPlugin().getScheduler().run(() -> ((LivingEntity) entity).damage(damage, attacker));
                     this.getPlugin().getScheduler().runLater(() -> entity.removeMetadata("cleaved", this.getPlugin()), 5);
                 });
     }

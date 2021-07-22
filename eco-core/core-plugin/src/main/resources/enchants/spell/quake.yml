@@ -13,11 +13,12 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - sword
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
   maximum-level: 3
 
 config:
@@ -25,3 +26,4 @@ config:
   cooldown: 40 # In seconds
   damage-per-level: 3
   radius-per-level: 2
+  not-while-sneaking: false

@@ -1,8 +1,8 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
-import com.willfp.eco.util.drops.DropQueue;
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
-import com.willfp.eco.util.tuplets.Pair;
+import com.willfp.eco.core.drops.DropQueue;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.core.tuples.Pair;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
@@ -28,10 +28,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 public class InfernalTouch extends EcoEnchant {
-    private static final HashMap<Material, Pair<Material, Integer>> RECIPES = new HashMap<>();
+    private static final Map<Material, Pair<Material, Integer>> RECIPES = new HashMap<>();
     private static final Set<Material> FORTUNE_MATERIALS = new HashSet<>(
             Arrays.asList(
                     Material.GOLD_INGOT,
@@ -39,23 +40,22 @@ public class InfernalTouch extends EcoEnchant {
             )
     );
 
-    public InfernalTouch() {
-        super(
-                "infernal_touch", EnchantmentType.NORMAL
-        );
-    }
-
     static {
         Iterator<Recipe> iterator = Bukkit.recipeIterator();
         while (iterator.hasNext()) {
             Recipe recipe = iterator.next();
-            if (!(recipe instanceof FurnaceRecipe)) {
+            if (!(recipe instanceof FurnaceRecipe furnaceRecipe)) {
                 continue;
             }
-            FurnaceRecipe furnaceRecipe = (FurnaceRecipe) recipe;
             int xp = (int) Math.ceil(furnaceRecipe.getExperience());
             RECIPES.put(furnaceRecipe.getInput().getType(), new Pair<>(furnaceRecipe.getResult().getType(), xp));
         }
+    }
+
+    public InfernalTouch() {
+        super(
+                "infernal_touch", EnchantmentType.NORMAL
+        );
     }
 
     @NotNull
@@ -80,7 +80,7 @@ public class InfernalTouch extends EcoEnchant {
             return;
         }
 
-        if (event.getBlock().getState() instanceof Container) {
+        if (event.getBlockState() instanceof Container) {
             return;
         }
 
@@ -111,7 +111,7 @@ public class InfernalTouch extends EcoEnchant {
             experience += out.getSecond();
 
             if (fortune > 0 && FORTUNE_MATERIALS.contains(itemStack.getType())) {
-                itemStack.setAmount((int) Math.ceil(1 / ((double) fortune + 2) + ((double) fortune + 1) / 2));
+                itemStack.setAmount((int) Math.round((Math.random() * ((double) fortune - 1)) + 1.1));
                 experience++;
             }
         }

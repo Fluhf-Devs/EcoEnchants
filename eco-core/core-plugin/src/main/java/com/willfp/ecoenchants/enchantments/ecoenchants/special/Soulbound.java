@@ -1,7 +1,10 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.special;
 
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
+import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
+import com.willfp.ecoenchants.enchantments.util.EnchantChecks;
+import com.willfp.ecoenchants.enchantments.util.EnchantmentUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,6 +42,18 @@ public class Soulbound extends EcoEnchant {
             return;
         }
 
+        if (player.getKiller() != null) {
+            Player killer = player.getKiller();
+            int reaperLevel = EnchantChecks.getMainhandLevel(killer, EcoEnchants.REAPER);
+            if (reaperLevel > 0) {
+                if (!(EcoEnchants.REAPER.getDisabledWorlds().contains(killer.getWorld()))) {
+                    if (EnchantmentUtils.passedChance(EcoEnchants.REAPER, reaperLevel)) {
+                        return;
+                    }
+                }
+            }
+        }
+
         for (ItemStack itemStack : player.getInventory().getContents()) {
             if (itemStack == null) {
                 continue;
@@ -48,8 +63,10 @@ public class Soulbound extends EcoEnchant {
                 soulboundItems.add(itemStack);
             }
 
-            if (itemStack.getItemMeta() instanceof EnchantmentStorageMeta && (((EnchantmentStorageMeta) itemStack.getItemMeta()).getStoredEnchants().containsKey(this.getEnchantment()))) {
-                soulboundItems.add(itemStack);
+            if (this.getConfig().getBool(EcoEnchants.CONFIG_LOCATION + "on-books")) {
+                if (itemStack.getItemMeta() instanceof EnchantmentStorageMeta && (((EnchantmentStorageMeta) itemStack.getItemMeta()).getStoredEnchants().containsKey(this))) {
+                    soulboundItems.add(itemStack);
+                }
             }
         }
 
@@ -60,6 +77,16 @@ public class Soulbound extends EcoEnchant {
             assert meta != null;
             PersistentDataContainer container = meta.getPersistentDataContainer();
             container.set(this.getPlugin().getNamespacedKeyFactory().create("soulbound"), PersistentDataType.INTEGER, 1);
+
+            if (this.getConfig().getBool(EcoEnchants.CONFIG_LOCATION + "remove-after")) {
+                if (this.getConfig().getBool(EcoEnchants.CONFIG_LOCATION + "on-books")) {
+                    if (meta instanceof EnchantmentStorageMeta) {
+                        ((EnchantmentStorageMeta) meta).removeStoredEnchant(this);
+                    }
+                }
+                meta.removeEnchant(this);
+            }
+
             itemStack.setItemMeta(meta);
         }
 

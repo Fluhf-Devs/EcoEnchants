@@ -19,16 +19,16 @@ public class Corrosive extends EcoEnchant {
                 "corrosive", EnchantmentType.NORMAL
         );
     }
+
     @Override
     public void onArrowDamage(@NotNull final LivingEntity attacker,
                               @NotNull final LivingEntity uncastVictim,
                               @NotNull final Arrow arrow,
                               final int level,
                               @NotNull final EntityDamageByEntityEvent event) {
-        if (!(uncastVictim instanceof Player)) {
+        if (!(uncastVictim instanceof Player victim)) {
             return;
         }
-        Player victim = (Player) uncastVictim;
 
         ArrayList<ItemStack> armor = new ArrayList<>(Arrays.asList(victim.getInventory().getArmorContents()));
         if (armor.isEmpty()) {

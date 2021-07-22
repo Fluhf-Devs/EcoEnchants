@@ -13,11 +13,12 @@ obtaining:
   rarity: rare
 
 general-config:
+  flags: []
   targets:
     - shield
   grindstoneable: true
 
-  conflicts: []
+  conflicts: [ ]
   maximum-level: 3
 
 config:

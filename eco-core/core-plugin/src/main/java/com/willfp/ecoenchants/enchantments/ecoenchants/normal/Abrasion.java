@@ -2,10 +2,8 @@ package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
 import com.willfp.eco.util.DurabilityUtils;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
-import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
-import com.willfp.ecoenchants.proxy.proxies.CooldownProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
+import com.willfp.ecoenchants.enchantments.util.EnchantmentUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -14,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
 public class Abrasion extends EcoEnchant {
     public Abrasion() {
         super(
@@ -26,13 +25,11 @@ public class Abrasion extends EcoEnchant {
                               @NotNull final LivingEntity uncastVictim,
                               final int level,
                               @NotNull final EntityDamageByEntityEvent event) {
-        if (!(uncastVictim instanceof Player)) {
+        if (!(uncastVictim instanceof Player victim)) {
             return;
         }
-        Player victim = (Player) uncastVictim;
 
-        boolean notcharged = this.getConfig().getBool(EcoEnchants.CONFIG_LOCATION + "allow-not-fully-charged");
-        if (attacker instanceof Player && ProxyUtils.getProxy(CooldownProxy.class).getAttackCooldown((Player) attacker) != 1.0f && !notcharged) {
+        if (!EnchantmentUtils.isFullyChargeIfRequired(this, attacker)) {
             return;
         }
 

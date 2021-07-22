@@ -1,6 +1,6 @@
 package com.willfp.ecoenchants.mmo;
 
-import com.willfp.eco.util.optional.Prerequisite;
+import com.willfp.eco.core.Prerequisite;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -21,7 +21,7 @@ public class MMOPrerequisites {
     );
 
     public static Prerequisite[] append(Prerequisite[] array, Prerequisite newElement) {
-        Prerequisite[] copy = new Prerequisite[array.length+1];
+        Prerequisite[] copy = new Prerequisite[array.length + 1];
         System.arraycopy(array, 0, copy, 0, array.length);
         copy[array.length] = newElement;
         return copy;

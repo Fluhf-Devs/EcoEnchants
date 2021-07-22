@@ -1,9 +1,10 @@
-# INFO: Use the permission name of enchantments if you want to add them to this file (ie damageartifact, not damage_artifact)
+# INFO: Use the key name of enchantments if you want to add them to this file
 
 messages:
-  prefix: "&f[&aEcoEnchants&f] "
+  prefix: "&a&lEcoEnchants &r&8» &r"
   no-permission: "&cYou don't have permission to do this!"
   not-player: "&cThis command must be run by a player"
+  invalid-command: "&cUnknown subcommand!"
   reloaded: "Reloaded!"
   got-special: "You got a &dSpecial &fenchantment!"
   skip-added: "&aAdded &flore skip to item!"
@@ -15,9 +16,20 @@ messages:
     &9Max Level: &r%maxlevel%
     &9Can be applied to: &r%target%
     &9Conflicts with: &r%conflicts%
-  outdated: "You are running an outdated version of &aEcoEnchants! &fCurrently running &e%ver%&f, newest version &e%newver%&f. Download at &a&lhttps://www.spigotmc.org/resources/ecoenchants.79573/"
   on-cooldown: "&fThis spell is on cooldown! Wait &a%seconds% Seconds&f to use &a%name%&f again."
   used-spell: "&fUsed &a%name%&f spell!"
+  must-hold-item: "&cYou must be holding an enchantable item!"
+  no-enchants-available: "&fNo available enchantments found for this item!"
+  applied-random-enchant: "&fAdded %enchantment% to your item!"
+  gave-random-book: "&fGave %enchantment% book!"
+  received-random-book: "&fYou have received a %enchantment% book!"
+  invalid-player: "&cInvalid Player!"
+  requires-player: "&cRequires a Player!"
+  must-hold-item-other: "&cPlayer is not holding an enchantable item!"
+  link-to-locale: "The locale has been successfully exported! Your token is: %token%"
+  downloaded-locale: "Locale downloaded! Reload config to enact changes."
+  invalid-locale: "&cYou must supply a valid locale! Check the wiki for more information."
+  specify-locale-subcommand: "&cYou must specify whether to export or download a locale!"
 
 no-targets: "&cCannot be applied"
 no-conflicts: "&cNo conflicts"

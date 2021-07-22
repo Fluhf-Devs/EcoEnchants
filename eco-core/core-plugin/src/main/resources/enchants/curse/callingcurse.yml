@@ -13,13 +13,14 @@ obtaining:
   rarity: legendary
 
 general-config:
+  flags: []
   targets:
     - helmet
     - chestplate
     - leggings
     - boots
   grindstoneable: false
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - mending
 

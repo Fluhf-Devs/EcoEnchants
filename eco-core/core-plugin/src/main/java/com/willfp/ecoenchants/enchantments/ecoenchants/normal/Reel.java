@@ -1,7 +1,7 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.eco.util.VectorUtils;
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
@@ -19,19 +19,18 @@ public class Reel extends EcoEnchant {
                 "reel", EnchantmentType.NORMAL
         );
     }
+
     @EventHandler
     public void onFish(@NotNull final PlayerFishEvent event) {
         if (!event.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
             return;
         }
 
-        if (!(event.getCaught() instanceof LivingEntity)) {
+        if (!(event.getCaught() instanceof LivingEntity victim)) {
             return;
         }
 
         Player player = event.getPlayer();
-
-        LivingEntity victim = (LivingEntity) event.getCaught();
 
         if (victim.hasMetadata("NPC")) {
             return;

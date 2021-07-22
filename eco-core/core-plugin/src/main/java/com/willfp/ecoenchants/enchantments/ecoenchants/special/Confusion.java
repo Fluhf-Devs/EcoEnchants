@@ -1,11 +1,8 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.special;
 
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
-import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantmentUtils;
-import com.willfp.ecoenchants.proxy.proxies.CooldownProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -15,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 public class Confusion extends EcoEnchant {
     public Confusion() {
         super(
@@ -27,14 +25,11 @@ public class Confusion extends EcoEnchant {
                               @NotNull final LivingEntity uncastVictim,
                               final int level,
                               @NotNull final EntityDamageByEntityEvent event) {
-        if (!(uncastVictim instanceof Player)) {
+        if (!(uncastVictim instanceof Player victim)) {
             return;
         }
-        Player victim = (Player) uncastVictim;
 
-        if (attacker instanceof Player
-                && ProxyUtils.getProxy(CooldownProxy.class).getAttackCooldown((Player) attacker) != 1.0f
-                && !this.getConfig().getBool(EcoEnchants.CONFIG_LOCATION + "allow-not-fully-charged")) {
+        if (!EnchantmentUtils.isFullyChargeIfRequired(this, attacker)) {
             return;
         }
 

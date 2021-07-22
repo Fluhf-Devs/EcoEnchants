@@ -1,13 +1,12 @@
 package com.willfp.ecoenchants.enchantments.support.merging.anvil;
 
+import com.willfp.eco.core.EcoPlugin;
+import com.willfp.eco.core.PluginDependent;
+import com.willfp.eco.core.proxy.ProxyConstants;
+import com.willfp.eco.core.tuples.Pair;
 import com.willfp.eco.util.NumberUtils;
-import com.willfp.eco.util.internal.PluginDependent;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
-import com.willfp.eco.util.proxy.ProxyConstants;
-import com.willfp.eco.util.tuplets.Pair;
 import com.willfp.ecoenchants.proxy.proxies.OpenInventoryProxy;
 import com.willfp.ecoenchants.proxy.proxies.RepairCostProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,14 +17,15 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public class AnvilListeners extends PluginDependent implements Listener {
+public class AnvilListeners extends PluginDependent<EcoPlugin> implements Listener {
     /**
      * Map to prevent incrementing cost several times as inventory events are fired 3 times.
      */
-    private static final HashMap<UUID, Integer> ANTI_REPEAT = new HashMap<>();
+    private static final Map<UUID, Integer> ANTI_REPEAT = new HashMap<>();
 
     /**
      * Class for AnvilGUI wrappers to ignore them.
@@ -37,7 +37,7 @@ public class AnvilListeners extends PluginDependent implements Listener {
      *
      * @param plugin The plugin to link to.
      */
-    public AnvilListeners(@NotNull final AbstractEcoPlugin plugin) {
+    public AnvilListeners(@NotNull final EcoPlugin plugin) {
         super(plugin);
     }
 
@@ -48,6 +48,20 @@ public class AnvilListeners extends PluginDependent implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAnvilPrepare(@NotNull final PrepareAnvilEvent event) {
+        /*
+        This code is almost as bad as AnvilMerge#doMerge
+        Inventory events fire three times so I have to do weird workarounds
+        I also don't know how any of this works - so many things are null
+
+        Do I know when the items are changed? No
+        Do I know when the experience and name is set? No
+        Do I know when the merge has failed? No
+        But it works and I won't touch it.
+
+        I wrote this code in July 2020 and I'm amazed that it holds up.
+         */
+
+
         ItemStack left = event.getInventory().getItem(0);
         ItemStack right = event.getInventory().getItem(1);
         ItemStack out = event.getResult();
@@ -61,7 +75,7 @@ public class AnvilListeners extends PluginDependent implements Listener {
         event.getInventory().setItem(2, null);
 
         Player player = (Player) event.getViewers().get(0);
-        if (ProxyUtils.getProxy(OpenInventoryProxy.class).getOpenInventory(player).getClass().toString().equals(ANVIL_GUI_CLASS)) {
+        if (this.getPlugin().getProxy(OpenInventoryProxy.class).getOpenInventory(player).getClass().toString().equals(ANVIL_GUI_CLASS)) {
             return;
         }
 
@@ -109,14 +123,14 @@ public class AnvilListeners extends PluginDependent implements Listener {
             }
 
             if (this.getPlugin().getConfigYml().getBool("anvil.rework-cost")) {
-                int repairCost = ProxyUtils.getProxy(RepairCostProxy.class).getRepairCost(item);
+                int repairCost = this.getPlugin().getProxy(RepairCostProxy.class).getRepairCost(item);
                 int reworkCount = NumberUtils.log2(repairCost + 1);
                 if (repairCost == 0) {
                     reworkCount = 0;
                 }
                 reworkCount++;
                 repairCost = (int) Math.pow(2, reworkCount) - 1;
-                item = ProxyUtils.getProxy(RepairCostProxy.class).setRepairCost(item, repairCost);
+                item = this.getPlugin().getProxy(RepairCostProxy.class).setRepairCost(item, repairCost);
             }
 
             int cost;

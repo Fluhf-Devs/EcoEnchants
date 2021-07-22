@@ -13,10 +13,11 @@ obtaining:
   rarity: veryspecial
 
 general-config:
+  flags: []
   targets:
     - all
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - mending
     - decay_curse

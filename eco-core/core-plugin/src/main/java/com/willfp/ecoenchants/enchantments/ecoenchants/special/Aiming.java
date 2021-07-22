@@ -1,5 +1,6 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.special;
 
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.eco.util.NumberUtils;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
@@ -26,22 +27,20 @@ public class Aiming extends EcoEnchant {
                 "aiming", EnchantmentType.SPECIAL
         );
     }
+
     @EventHandler
     public void aimingLaunch(@NotNull final ProjectileLaunchEvent event) {
-        if (!(event.getEntity().getShooter() instanceof Player)) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
             return;
         }
 
-        if (!(event.getEntity() instanceof Arrow)) {
+        if (!(event.getEntity() instanceof Arrow arrow)) {
             return;
         }
 
         if (event.isCancelled()) {
             return;
         }
-
-        Player player = (Player) event.getEntity().getShooter();
-        Arrow arrow = (Arrow) event.getEntity();
 
         if (!EnchantChecks.mainhand(player, this)) {
             return;
@@ -72,8 +71,10 @@ public class Aiming extends EcoEnchant {
         Runnable runnable = this.getPlugin().getRunnableFactory().create(bukkitRunnable -> {
             List<LivingEntity> nearbyEntities = (List<LivingEntity>) (List<?>) Arrays.asList(arrow.getNearbyEntities(finalDistance, finalDistance, finalDistance).stream()
                     .filter(entity -> entity instanceof LivingEntity)
+                    .map(entity -> (LivingEntity) entity)
                     .filter(entity -> !entity.equals(player))
                     .filter(entity -> !(entity instanceof Enderman))
+                    .filter(entity -> AntigriefManager.canInjure(player, entity))
                     .filter(entity -> {
                         if (entity instanceof Player) {
                             return ((Player) entity).getGameMode().equals(GameMode.SURVIVAL) || ((Player) entity).getGameMode().equals(GameMode.ADVENTURE);

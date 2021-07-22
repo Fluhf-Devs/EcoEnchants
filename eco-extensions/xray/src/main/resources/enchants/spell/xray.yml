@@ -13,11 +13,12 @@ obtaining:
   rarity: legendary
 
 general-config:
+  flags: []
   targets:
     - pickaxe
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
   maximum-level: 3
 
 config:
@@ -26,11 +27,13 @@ config:
   blocks:
     - coal_ore
     - iron_ore
+    - copper_ore
     - gold_ore
     - redstone_ore
     - lapis_ore
     - ancient_debris
     - diamond_ore
+    - emerald_ore
   blocks-per-level: 3 # Blocks on all sides to scan per level
   ticks: 60
   color-glow: true # Color ore glow based on ore type.

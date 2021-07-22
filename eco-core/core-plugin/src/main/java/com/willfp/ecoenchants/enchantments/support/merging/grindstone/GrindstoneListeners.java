@@ -1,8 +1,10 @@
 package com.willfp.ecoenchants.enchantments.support.merging.grindstone;
 
-import com.willfp.eco.util.internal.PluginDependent;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
+import com.willfp.eco.core.EcoPlugin;
+import com.willfp.eco.core.PluginDependent;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,13 +18,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class GrindstoneListeners extends PluginDependent implements Listener {
+public class GrindstoneListeners extends PluginDependent<EcoPlugin> implements Listener {
     /**
      * Instantiate grindstone listeners and link them to a specific plugin.
      *
      * @param plugin The plugin to link to.
      */
-    public GrindstoneListeners(@NotNull final AbstractEcoPlugin plugin) {
+    public GrindstoneListeners(@NotNull final EcoPlugin plugin) {
         super(plugin);
     }
 
@@ -56,8 +58,7 @@ public class GrindstoneListeners extends PluginDependent implements Listener {
             }
 
             ItemStack newOut = out.clone();
-            if (newOut.getItemMeta() instanceof EnchantmentStorageMeta) {
-                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) newOut.getItemMeta();
+            if (newOut.getItemMeta() instanceof EnchantmentStorageMeta meta) {
                 toKeep.forEach(((enchantment, integer) -> {
                     meta.addStoredEnchant(enchantment, integer, true);
                 }));
@@ -70,10 +71,15 @@ public class GrindstoneListeners extends PluginDependent implements Listener {
                 newOut.setItemMeta(meta);
             }
 
-            final ItemStack finalOut = newOut;
-
             this.getPlugin().getScheduler().run(() -> {
-                inventory.setItem(2, finalOut);
+                inventory.setItem(2, newOut);
+                if (!toKeep.isEmpty()) {
+                    for (Entity entity : player.getNearbyEntities(10, 10, 10)) {
+                        if (entity.getType() == EntityType.EXPERIENCE_ORB) {
+                            entity.remove();
+                        }
+                    }
+                }
             });
         }, 1);
     }

@@ -13,10 +13,11 @@ obtaining:
   rarity: rare
 
 general-config:
+  flags: []
   targets:
     - sword
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - diurnal
   maximum-level: 6

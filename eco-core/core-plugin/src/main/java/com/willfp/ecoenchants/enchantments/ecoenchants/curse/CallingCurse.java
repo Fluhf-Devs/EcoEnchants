@@ -1,12 +1,12 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.curse;
 
+import com.willfp.eco.core.events.ArmorEquipEvent;
 import com.willfp.eco.util.VectorUtils;
-import com.willfp.eco.util.events.armorequip.ArmorEquipEvent;
-import com.willfp.eco.util.interfaces.EcoRunnable;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantChecks;
+import com.willfp.ecoenchants.enchantments.util.TimedRunnable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.PigZombie;
@@ -18,9 +18,10 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Map;
 
-public class CallingCurse extends EcoEnchant implements EcoRunnable {
-    private final HashMap<Player, Integer> players = new HashMap<>();
+public class CallingCurse extends EcoEnchant implements TimedRunnable {
+    private final Map<Player, Integer> players = new HashMap<>();
     private double distance = this.getConfig().getDouble(EcoEnchants.CONFIG_LOCATION + "distance");
 
     public CallingCurse() {

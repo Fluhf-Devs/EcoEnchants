@@ -1,14 +1,12 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
+import com.willfp.eco.core.drops.DropQueue;
 import com.willfp.eco.util.NumberUtils;
-import com.willfp.eco.util.drops.DropQueue;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantChecks;
 import com.willfp.ecoenchants.enchantments.util.EnchantmentUtils;
-import com.willfp.ecoenchants.proxy.proxies.TridentStackProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -36,27 +34,23 @@ public class Spearfishing extends EcoEnchant {
             return;
         }
 
-        if (!(event.getEntity().getShooter() instanceof Player)) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
             return;
         }
 
-        if (!(event.getEntity() instanceof Trident)) {
+        if (!(event.getEntity() instanceof Trident trident)) {
             return;
         }
-
-        Trident trident = (Trident) event.getEntity();
 
         if (!trident.getWorld().getBlockAt(trident.getLocation().add(0, 0.2, 0)).getType().equals(Material.WATER)) {
             return;
         }
 
-        Player player = (Player) event.getEntity().getShooter();
-
         if (this.getDisabledWorlds().contains(player.getWorld())) {
             return;
         }
 
-        ItemStack item = ProxyUtils.getProxy(TridentStackProxy.class).getTridentStack(trident);
+        ItemStack item = trident.getItem();
 
         if (!EnchantChecks.item(item, this)) {
             return;

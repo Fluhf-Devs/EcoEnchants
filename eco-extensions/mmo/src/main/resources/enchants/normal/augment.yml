@@ -13,13 +13,14 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - helmet
     - chestplate
     - leggings
     - boots
   grindstoneable: true
-  conflicts: []
+  conflicts: [ ]
   maximum-level: 4
 
 config:

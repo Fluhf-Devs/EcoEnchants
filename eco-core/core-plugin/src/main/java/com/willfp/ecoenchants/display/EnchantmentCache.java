@@ -1,11 +1,10 @@
 package com.willfp.ecoenchants.display;
 
 import com.google.common.collect.ImmutableMap;
-import com.willfp.eco.util.config.updating.annotations.ConfigUpdater;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
+import com.willfp.eco.core.config.updating.ConfigUpdater;
+import com.willfp.eco.core.display.Display;
 import com.willfp.ecoenchants.EcoEnchantsPlugin;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
-import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentRarity;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import lombok.Getter;
@@ -30,7 +29,7 @@ public class EnchantmentCache {
     /**
      * Instance of EcoEnchants.
      */
-    public static final AbstractEcoPlugin PLUGIN = EcoEnchantsPlugin.getInstance();
+    public static final EcoEnchantsPlugin PLUGIN = EcoEnchantsPlugin.getInstance();
 
     /**
      * The physical cache.
@@ -88,10 +87,10 @@ public class EnchantmentCache {
                     enchantment,
                     "&4INVALID ENCHANTMENT",
                     "INVALID",
-                    Collections.singletonList(EnchantDisplay.PREFIX + "INVALID ENCHANTMENT: " + enchantment.getClass().getName()),
+                    Collections.singletonList(Display.PREFIX + "INVALID ENCHANTMENT: " + enchantment.getClass().getName()),
                     EnchantmentType.NORMAL,
                     EnchantmentRarity.getByName(PLUGIN.getConfigYml().getString("rarity.vanilla-rarity"))
-                    ));
+            ));
             return;
         }
 
@@ -100,10 +99,9 @@ public class EnchantmentCache {
         EnchantmentType type;
         EnchantmentRarity rarity;
         List<String> description;
-        if (EcoEnchants.getFromEnchantment(enchantment) != null) {
-            EcoEnchant ecoEnchant = EcoEnchants.getFromEnchantment(enchantment);
+        if (enchantment instanceof EcoEnchant ecoEnchant) {
             description = ecoEnchant.getWrappedDescription();
-            name = ecoEnchant.getName();
+            name = ecoEnchant.getDisplayName();
             type = ecoEnchant.getType();
             rarity = ecoEnchant.getRarity();
         } else {
@@ -135,7 +133,7 @@ public class EnchantmentCache {
 
         String rawName = name;
         name = color + name;
-        description.replaceAll(line -> EnchantDisplay.PREFIX + EnchantDisplay.OPTIONS.getDescriptionOptions().getColor() + line);
+        description.replaceAll(line -> Display.PREFIX + PLUGIN.getDisplayModule().getOptions().getDescriptionOptions().getColor() + line);
         CACHE.put(enchantment.getKey(), new CacheEntry(enchantment, name, rawName, description, type, rarity));
     }
 
@@ -184,11 +182,11 @@ public class EnchantmentCache {
         private final EnchantmentRarity rarity;
 
         private CacheEntry(@NotNull final Enchantment enchantment,
-                          @NotNull final String name,
-                          @NotNull final String rawName,
-                          @NotNull final List<String> description,
-                          @NotNull final EnchantmentType type,
-                          @NotNull final EnchantmentRarity rarity) {
+                           @NotNull final String name,
+                           @NotNull final String rawName,
+                           @NotNull final List<String> description,
+                           @NotNull final EnchantmentType type,
+                           @NotNull final EnchantmentRarity rarity) {
             this.enchantment = enchantment;
             this.name = name;
             this.rawName = rawName;
@@ -204,8 +202,8 @@ public class EnchantmentCache {
             });
 
             String processedStringDescription = descriptionBuilder.toString();
-            processedStringDescription = processedStringDescription.replace("§w", "");
-            this.stringDescription = processedStringDescription.replaceAll(EnchantDisplay.OPTIONS.getDescriptionOptions().getColor(), "");
+            processedStringDescription = processedStringDescription.replace(Display.PREFIX, "");
+            this.stringDescription = processedStringDescription.replaceAll(PLUGIN.getDisplayModule().getOptions().getDescriptionOptions().getColor(), "");
         }
     }
 }

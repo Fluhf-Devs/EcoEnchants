@@ -1,11 +1,10 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.spell;
 
-import com.willfp.eco.util.integrations.anticheat.AnticheatManager;
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.core.integrations.anticheat.AnticheatManager;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.util.BlockUtils;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.itemtypes.Spell;
-import com.willfp.ecoenchants.proxy.proxies.BlockBreakProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -22,21 +21,21 @@ public class Dynamite extends Spell {
     }
 
     @Override
-    public void onUse(@NotNull final Player player,
-                      final int level,
-                      @NotNull final PlayerInteractEvent event) {
+    public boolean onUse(@NotNull final Player player,
+                         final int level,
+                         @NotNull final PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
 
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            return;
+            return false;
         }
 
         if (block == null) {
-            return;
+            return false;
         }
 
         if (block.hasMetadata("block-ignore")) {
-            return;
+            return false;
         }
 
         AnticheatManager.exemptPlayer(player);
@@ -75,10 +74,17 @@ public class Dynamite extends Spell {
 
         toBreak.forEach((block1 -> {
             block1.setMetadata("block-ignore", this.getPlugin().getMetadataValueFactory().create(true));
-            ProxyUtils.getProxy(BlockBreakProxy.class).breakBlock(player, block1);
+            BlockUtils.breakBlock(player, block1);
             block1.removeMetadata("block-ignore", this.getPlugin());
         }));
 
         AnticheatManager.unexemptPlayer(player);
+
+        return true;
+    }
+
+    @Override
+    protected boolean requiresBlockClick() {
+        return true;
     }
 }

@@ -1,12 +1,12 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
+import com.willfp.eco.core.events.ArmorEquipEvent;
 import com.willfp.eco.util.NumberUtils;
-import com.willfp.eco.util.events.armorequip.ArmorEquipEvent;
-import com.willfp.eco.util.interfaces.EcoRunnable;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantChecks;
+import com.willfp.ecoenchants.enchantments.util.TimedRunnable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -16,9 +16,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Map;
 
-public class Forcefield extends EcoEnchant implements EcoRunnable {
-    private final HashMap<Player, Integer> players = new HashMap<>();
+public class Forcefield extends EcoEnchant implements TimedRunnable {
+    private final Map<Player, Integer> players = new HashMap<>();
     private double initialDistance = this.getConfig().getDouble(EcoEnchants.CONFIG_LOCATION + "initial-distance");
     private double bonus = this.getConfig().getDouble(EcoEnchants.CONFIG_LOCATION + "bonus-per-level");
     private double damagePerPoint = this.getConfig().getDouble(EcoEnchants.CONFIG_LOCATION + "damage-per-level");
@@ -59,7 +60,7 @@ public class Forcefield extends EcoEnchant implements EcoRunnable {
 
     @Override
     public void run() {
-        players.forEach((player, level) -> {
+        new HashMap<>(players).forEach((player, level) -> {
             if (this.getDisabledWorlds().contains(player.getWorld())) {
                 return;
             }

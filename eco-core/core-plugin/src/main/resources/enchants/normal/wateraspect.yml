@@ -13,11 +13,12 @@ obtaining:
   rarity: rare
 
 general-config:
+  flags: []
   targets:
     - sword
     - axe
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - fire_aspect
   maximum-level: 2

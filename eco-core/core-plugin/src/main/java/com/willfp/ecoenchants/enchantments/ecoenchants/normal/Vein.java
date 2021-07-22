@@ -1,13 +1,11 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
+import com.willfp.eco.core.integrations.anticheat.AnticheatManager;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.eco.util.BlockUtils;
-import com.willfp.eco.util.integrations.anticheat.AnticheatManager;
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
-import com.willfp.ecoenchants.proxy.proxies.BlockBreakProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -15,6 +13,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -38,10 +38,9 @@ public class Vein extends EcoEnchant {
             return;
         }
 
-        List<Material> materials = new ArrayList<>();
-        this.getConfig().getStrings(EcoEnchants.CONFIG_LOCATION + "whitelisted-blocks").forEach(name -> materials.add(Material.getMaterial(name.toUpperCase())));
+        List<Material> materials = Collections.singletonList(block.getType());
 
-        if (!materials.contains(block.getType())) {
+        if (!this.getConfig().getStrings(EcoEnchants.CONFIG_LOCATION + "whitelisted-blocks").contains(block.getType().toString().toLowerCase())) {
             return;
         }
 
@@ -58,7 +57,7 @@ public class Vein extends EcoEnchant {
                 continue;
             }
 
-            ProxyUtils.getProxy(BlockBreakProxy.class).breakBlock(player, veinBlock);
+            BlockUtils.breakBlock(player, veinBlock);
 
             this.getPlugin().getScheduler().runLater(() -> veinBlock.removeMetadata("block-ignore", this.getPlugin()), 1);
         }

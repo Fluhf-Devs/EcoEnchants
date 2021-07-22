@@ -1,7 +1,7 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
+import com.willfp.eco.core.drops.DropQueue;
 import com.willfp.eco.util.NumberUtils;
-import com.willfp.eco.util.drops.DropQueue;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
@@ -13,8 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.stream.Collectors;
 
 public class Transfuse extends EcoEnchant {
     public Transfuse() {
@@ -38,9 +36,7 @@ public class Transfuse extends EcoEnchant {
 
         event.setDropItems(false);
 
-        if (!this.getConfig().getStrings(EcoEnchants.CONFIG_LOCATION + "works-on").stream()
-                .map(string -> Material.getMaterial(string.toUpperCase()))
-                .collect(Collectors.toList()).contains(block.getType())) {
+        if (!this.getConfig().getStrings(EcoEnchants.CONFIG_LOCATION + "works-on").contains(block.getType().toString().toLowerCase())) {
             return;
         }
 

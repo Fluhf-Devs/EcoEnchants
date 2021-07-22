@@ -1,6 +1,6 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantmentUtils;
@@ -23,7 +23,7 @@ public class Ignite extends EcoEnchant {
     public void onArrowHit(@NotNull final LivingEntity uncastShooter,
                            final int level,
                            @NotNull final ProjectileHitEvent event) {
-        if (!(uncastShooter instanceof Player)) {
+        if (!(uncastShooter instanceof Player shooter)) {
             return;
         }
 
@@ -31,7 +31,6 @@ public class Ignite extends EcoEnchant {
             return;
         }
 
-        Player shooter = (Player) uncastShooter;
         if (!AntigriefManager.canBreakBlock(shooter, event.getHitBlock())) {
             return;
         }

@@ -16,13 +16,12 @@ public class Invigoration extends EcoEnchant {
                 "invigoration", EnchantmentType.NORMAL
         );
     }
+
     @EventHandler
     public void onInvigorationHurt(@NotNull final EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player player)) {
             return;
         }
-
-        Player player = (Player) event.getEntity();
 
         if (player.getHealth() > this.getConfig().getInt(EcoEnchants.CONFIG_LOCATION + "below-health")) {
             return;
@@ -44,11 +43,9 @@ public class Invigoration extends EcoEnchant {
 
     @EventHandler
     public void onInvigorationDamage(@NotNull final EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player)) {
+        if (!(event.getDamager() instanceof Player player)) {
             return;
         }
-
-        Player player = (Player) event.getDamager();
 
         if (player.getHealth() > this.getConfig().getInt(EcoEnchants.CONFIG_LOCATION + "below-health")) {
             return;

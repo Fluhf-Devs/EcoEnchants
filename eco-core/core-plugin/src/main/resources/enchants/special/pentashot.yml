@@ -13,14 +13,17 @@ obtaining:
   rarity: special
 
 general-config:
+  flags: []
   targets:
     - bow
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - succession
     - tripleshot
     - buckshot
+  maximum-level: 1
 
 config:
+  side-arrows-per-level: 2 # If you want to have more levels
   angle: 11

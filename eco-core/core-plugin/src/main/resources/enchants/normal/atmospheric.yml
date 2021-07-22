@@ -13,11 +13,12 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - trident
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
   maximum-level: 3
 
 config:

@@ -13,14 +13,15 @@ obtaining:
   rarity: legendary
 
 general-config:
+  flags: []
   targets:
     - pickaxe
     - axe
     - hoe
     - shovel
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
 
 config:
   chance-per-level: 15

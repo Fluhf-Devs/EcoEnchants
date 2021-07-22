@@ -2,11 +2,9 @@ package com.willfp.ecoenchants.enchantments.util;
 
 
 import com.willfp.eco.util.DurabilityUtils;
+import com.willfp.ecoenchants.EcoEnchantsPlugin;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
-import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.proxy.proxies.FastGetEnchantsProxy;
-import com.willfp.ecoenchants.proxy.proxies.RepairCostProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -24,13 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SuppressWarnings("unchecked")
 @UtilityClass
 public class EnchantChecks {
     /**
      * Proxy instance of FastGetEnchants.
      */
-    private static final FastGetEnchantsProxy PROXY = ProxyUtils.getProxy(FastGetEnchantsProxy.class);
+    private static final FastGetEnchantsProxy PROXY = EcoEnchantsPlugin.getInstance().getProxy(FastGetEnchantsProxy.class);
 
     /**
      * Does the specified ItemStack have a certain Enchantment present?
@@ -79,8 +76,7 @@ public class EnchantChecks {
 
         Map<EcoEnchant, Integer> ecoEnchants = new HashMap<>();
         for (Map.Entry<Enchantment, Integer> enchantmentIntegerEntry : PROXY.getEnchantmentsOnItem(item).entrySet()) {
-            EcoEnchant enchant = EcoEnchants.getFromEnchantment(enchantmentIntegerEntry.getKey());
-            if (enchant != null) {
+            if (enchantmentIntegerEntry.getKey() instanceof EcoEnchant enchant) {
                 ecoEnchants.put(enchant, enchantmentIntegerEntry.getValue());
             }
         }
@@ -113,23 +109,16 @@ public class EnchantChecks {
      */
     public static int getArrowLevel(@NotNull final Arrow arrow,
                                     @NotNull final Enchantment enchantment) {
-        if (arrow.getMetadata("enchantments").isEmpty()) {
+        if (arrow.getMetadata("shot-from").isEmpty()) {
             return 0;
         }
 
-        MetadataValue enchantmentsMetaValue = arrow.getMetadata("enchantments").get(0);
-        if (!(enchantmentsMetaValue.value() instanceof Map)) {
+        MetadataValue enchantmentsMetaValue = arrow.getMetadata("shot-from").get(0);
+        if (!(enchantmentsMetaValue.value() instanceof ItemStack shotFrom)) {
             return 0;
         }
 
-        Map<Enchantment, Integer> enchantments = (Map<Enchantment, Integer>) enchantmentsMetaValue.value();
-        if (enchantments == null) {
-            return 0;
-        }
-        if (!enchantments.containsKey(enchantment)) {
-            return 0;
-        }
-        return enchantments.get(enchantment);
+        return getItemLevel(shotFrom, enchantment);
     }
 
     /**
@@ -139,23 +128,16 @@ public class EnchantChecks {
      * @return A {@link HashMap} of all EcoEnchants, where the key represents the level.
      */
     public static Map<EcoEnchant, Integer> getEnchantsOnArrow(@NotNull final Arrow arrow) {
-        if (arrow.getMetadata("enchantments").isEmpty()) {
+        if (arrow.getMetadata("shot-from").isEmpty()) {
             return new HashMap<>();
         }
 
-        MetadataValue enchantmentsMetaValue = arrow.getMetadata("enchantments").get(0);
-        if (!(enchantmentsMetaValue.value() instanceof Map)) {
+        MetadataValue enchantmentsMetaValue = arrow.getMetadata("shot-from").get(0);
+        if (!(enchantmentsMetaValue.value() instanceof ItemStack shotFrom)) {
             return new HashMap<>();
         }
 
-        Map<EcoEnchant, Integer> ecoEnchants = new HashMap<>();
-        ((Map<Enchantment, Integer>) enchantmentsMetaValue.value()).forEach(((enchantment, integer) -> {
-            if (EcoEnchants.getFromEnchantment(enchantment) != null) {
-                ecoEnchants.put(EcoEnchants.getFromEnchantment(enchantment), integer);
-            }
-        }));
-
-        return ecoEnchants;
+        return getEnchantsOnItem(shotFrom);
     }
 
     /**
@@ -319,13 +301,11 @@ public class EnchantChecks {
             return new HashMap<>();
         }
 
-        List<ItemStack> armor = Arrays.asList(entity.getEquipment().getArmorContents());
-
         Map<EcoEnchant, Integer> ecoEnchants = new HashMap<>();
 
-        armor.forEach((itemStack -> {
+        for (ItemStack itemStack : entity.getEquipment().getArmorContents()) {
             ecoEnchants.putAll(EnchantChecks.getEnchantsOnItem(itemStack));
-        }));
+        }
 
         return ecoEnchants;
     }

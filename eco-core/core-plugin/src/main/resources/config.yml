@@ -3,6 +3,8 @@
 # by Auxilor
 #
 
+allow-on-npc: false # If enchantments should activate against NPCs.
+
 commands:
   enchantinfo:
     show-target-group: true # Show name of target group rather than individual items
@@ -29,6 +31,8 @@ lore:
   sort-by-length: false # Sort enchantments by length
   sort-by-rarity: false # Sort enchantments by rarity.
   # Any combination of the above options is valid
+
+  require-target: true # Only display items included in target.yml
 
   type-ordering: # Only used if sort-by-type is enabled - top to bottom
     - normal
@@ -92,6 +96,7 @@ loot:
 types:
   special:
     allow-multiple: false # Allow multiple special enchantments on a single item
+    cooldown-in-actionbar: true # Show cooldown messages in the action bar rather than in chat
   artifact:
     allow-multiple: false # Allow multiple artifacts on a single item (can cause lag!)
 
@@ -100,19 +105,51 @@ rarity:
   vanilla-treasure-rarity: legendary # Treasure enchantments do not appear in vanilla enchanting tables (Mending, Soul Speed, Frost Walker)
   # The above options *do not* affect actual enchantment rarities. They are purely for cosmetic purposes, like in item lores.
 
-drops:
-  ### ADVANCED OPTIONS
-  collate: true
-  # Instead of directly dropping all drops and xp, some intensive enchantments (eg Telekinesis and Infernal Touch) will push to a collated queue.
-  # At the end of each tick, the queue will be pushed rather than pushing on every drop creation
-  # This will massively improve mining performance on servers.
+advanced:
   force-dropqueue: true
   # When combined with collate, this massively reduces calls to getItemMeta, which can hurt performance when many enchants are on an item.
-  # Without collate, the number of calls may be increased - which will further hurt performance
   # Enabling this option makes all drops go through telekinesis listeners
-
-advanced:
-  lore-getter: false
-  # This converts enchantments with matching names from other enchantment plugins from lore into real enchantments.
-  # This is experimental not recommended to be used for extended periods of time: enchantments are automatically converted.
-  # Only use this if absolutely necessary as it may cause some bugs.
+  lore-getter:
+    # This converts enchantments with matching names from other enchantment plugins from lore into real enchantments.
+    # This is experimental not recommended to be used for extended periods of time: enchantments are automatically converted.
+    # Only use this if absolutely necessary as it may cause some bugs.
+    enabled: false
+    aggressive: false
+    # Aggressive mode converts all items in all inventories when opened.
+    # This will most likely have a significant performance penalty.
+  hide-fixer:
+    # Fixes some items obtained in older versions with a bug that caused enchantments to be hidden.
+    # Works both in packets to display the enchants to the client as well as changing the server-side item too.
+    # Only use this option if you've encountered this bug as it may strip HideEnchants from items that you might not expect it to.
+    enabled: false
+    aggressive: false
+    # Aggressive mode converts all items in all inventories whenever revealed.
+    # This may impact performance.
+    force: false # If **all** items should have hide enchants removed - absolute last ditch effort, most likely to break other things.
+  hard-disable:
+    # Fixes potential problems with other plugins where the enchantments are still present when disabled.
+    # Enabling this prevents the enchantments from being registered with the server at all when disabled.
+    # There may be some unknown problems with this, but will fix bugs with plugins such as Slimefun.
+    # Hard disabled enchantments will not update on /ecoreload. You will have to restart your server.
+    enabled: false
+  dual-registration:
+    # Fixes potential plugin conflicts/serialization issues when updating from a version before 7.3.0.
+    # Registers byName both the internal enchantment name (new method) and the display name (old method).
+    # There may be potential bugs with having duplicate enchantments, so enable this only if you need it.
+    enabled: true
+  level-clamp:
+    # Helps reverse players who have illegal above-max-level enchantments.
+    # When holding an item, any enchantments above their max level will be set to the max level in order to prevent illegal items.
+    # Players with ecoenchants.bypasslevelclamp permission will be ignored.
+    # This may impact performance.
+    enabled: false
+    # If the item should be deleted rather than have the enchantment level capped.
+    delete-item: false
+  remove-illegal:
+    # Helps reverse players who have enchantments on illegal items.
+    # When holding an item, any enchantments present on the item that shouldn't be will be removed.
+    # Players with ecoenchants.allowillegal permission will be ignored.
+    # This may impact performance.
+    enabled: false
+    # If the item should be deleted rather than have the enchantment removed.
+    delete-item: false

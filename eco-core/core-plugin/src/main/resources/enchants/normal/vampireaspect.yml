@@ -13,11 +13,12 @@ obtaining:
   rarity: rare
 
 general-config:
+  flags: []
   targets:
     - sword
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
   maximum-level: 2
 
 config:

@@ -13,10 +13,11 @@ obtaining:
   rarity: special
 
 general-config:
+  flags: []
   targets:
     - axe
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - cleave
   maximum-level: 8

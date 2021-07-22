@@ -17,15 +17,17 @@ public class Missile extends Spell {
     }
 
     @Override
-    public void onUse(@NotNull final Player player,
-                      final int level,
-                      @NotNull final PlayerInteractEvent event) {
+    public boolean onUse(@NotNull final Player player,
+                         final int level,
+                         @NotNull final PlayerInteractEvent event) {
         WitherSkull skull = player.launchProjectile(WitherSkull.class, player.getEyeLocation().getDirection().multiply(this.getConfig().getDouble(EcoEnchants.CONFIG_LOCATION + "velocity")));
         skull.setCharged(true);
         skull.setIsIncendiary(false);
         skull.setMetadata("eco-damage", this.getPlugin().getMetadataValueFactory().create(this.getConfig().getDouble(EcoEnchants.CONFIG_LOCATION + "damage-per-level") * level));
         skull.setMetadata("nobreak", this.getPlugin().getMetadataValueFactory().create(true));
         skull.setShooter(player);
+
+        return true;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -39,6 +41,10 @@ public class Missile extends Spell {
         }
 
         double multiplier = event.getDamager().getMetadata("eco-damage").get(0).asDouble();
+
+        if (((WitherSkull) event.getDamager()).getShooter().equals(event.getEntity())) {
+            event.setCancelled(true);
+        }
 
         event.setDamage(multiplier);
     }

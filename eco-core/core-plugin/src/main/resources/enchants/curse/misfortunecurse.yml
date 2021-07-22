@@ -13,13 +13,14 @@ obtaining:
   rarity: legendary
 
 general-config:
+  flags: []
   targets:
     - pickaxe
     - axe
     - hoe
     - shovel
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - fortune
 

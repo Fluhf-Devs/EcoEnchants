@@ -1,12 +1,14 @@
 package com.willfp.ecoenchants.enchantments;
 
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
-import com.willfp.eco.util.config.updating.annotations.ConfigUpdater;
+import com.willfp.eco.core.config.updating.ConfigUpdater;
+import com.willfp.ecoenchants.EcoEnchantsPlugin;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.AngerArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.AshArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.CloudsArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.CopperArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.CrimsonArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.DamageArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.DragonArtifact;
@@ -15,25 +17,35 @@ import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.EmeraldArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.EnchantmentArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.EndArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.FireArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.GlowArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.HeartArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.HoneyArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.InkArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.LavaArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.LightArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.LimeArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.MagicArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.MagmaArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.MusicArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.NautilusArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.NetherArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.RainArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.RedstoneArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SlimeArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SmokeArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SnowArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SoulArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SoulFireArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SparkArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SparkleArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SporeArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.SweepArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.TearArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.TotemArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.VillagerArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.WarpedArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.WaterArtifact;
+import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.WaxArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.WitchArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.artifact.ZapArtifact;
 import com.willfp.ecoenchants.enchantments.ecoenchants.curse.BreaklessnessCurse;
@@ -53,6 +65,7 @@ import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Arachnid;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Arborist;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Arcanic;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Atmospheric;
+import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Aversion;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Backstab;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Beheading;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.BlastMining;
@@ -121,6 +134,7 @@ import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Inferno;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Infuriate;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Insecticide;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Instantaneous;
+import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Introversion;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Invigoration;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Kinetic;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Launch;
@@ -154,6 +168,8 @@ import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Quadrilateralism;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Radiance;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Rage;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Rapid;
+import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Reaper;
+import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Rebounding;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Reel;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Reinforcement;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Rejuvenation;
@@ -196,6 +212,7 @@ import com.willfp.ecoenchants.enchantments.ecoenchants.normal.WaterAffinity;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.WaterAspect;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Weakening;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Wisdom;
+import com.willfp.ecoenchants.enchantments.ecoenchants.normal.WoodSwitcher;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Wound;
 import com.willfp.ecoenchants.enchantments.ecoenchants.normal.Zeus;
 import com.willfp.ecoenchants.enchantments.ecoenchants.special.Aiming;
@@ -228,9 +245,9 @@ import com.willfp.ecoenchants.enchantments.ecoenchants.spell.Missile;
 import com.willfp.ecoenchants.enchantments.ecoenchants.spell.Quake;
 import com.willfp.ecoenchants.enchantments.ecoenchants.spell.Vitalize;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
+import com.willfp.ecoenchants.enchantments.support.vanilla.VanillaEnchantments;
 import lombok.experimental.UtilityClass;
 import org.bukkit.NamespacedKey;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.jetbrains.annotations.NotNull;
@@ -472,6 +489,23 @@ public class EcoEnchants {
     public static final EcoEnchant ASCEND = new Ascend();
     public static final EcoEnchant ARBORIST = new Arborist();
     public static final EcoEnchant LUCKY_CATCH = new LuckyCatch();
+    public static final EcoEnchant AVERSION = new Aversion();
+    public static final EcoEnchant INTROVERSION = new Introversion();
+    public static final EcoEnchant VILLAGER_ARTIFACT = new VillagerArtifact();
+    public static final EcoEnchant ANGER_ARTIFACT = new AngerArtifact();
+    public static final EcoEnchant NAUTILUS_ARTIFACT = new NautilusArtifact();
+    public static final EcoEnchant SWEEP_ARTIFACT = new SweepArtifact();
+    public static final EcoEnchant REAPER = new Reaper();
+    public static final EcoEnchant WOOD_SWITCHER = new WoodSwitcher();
+    public static final EcoEnchant REBOUNDING = new Rebounding();
+    public static final EcoEnchant COPPER_ARTIFACT = new CopperArtifact();
+    public static final EcoEnchant GLOW_ARTIFACT = new GlowArtifact();
+    public static final EcoEnchant LIGHT_ARTIFACT = new LightArtifact();
+    public static final EcoEnchant SPARK_ARTIFACT = new SparkArtifact();
+    public static final EcoEnchant SPORE_ARTIFACT = new SporeArtifact();
+    public static final EcoEnchant WAX_ARTIFACT = new WaxArtifact();
+    public static final EcoEnchant RAIN_ARTIFACT = new RainArtifact();
+    public static final EcoEnchant SLIME_ARTIFACT = new SlimeArtifact();
 
     /**
      * Get all registered {@link EcoEnchant}s.
@@ -480,16 +514,6 @@ public class EcoEnchants {
      */
     public static List<EcoEnchant> values() {
         return ImmutableList.copyOf(BY_KEY.values());
-    }
-
-    /**
-     * Gets {@link EcoEnchant} from {@link Enchantment}.
-     *
-     * @param enchantment The enchantment.
-     * @return The matching {@link EcoEnchant}, or null if not found.
-     */
-    public static EcoEnchant getFromEnchantment(@NotNull final Enchantment enchantment) {
-        return getByKey(enchantment.getKey());
     }
 
     /**
@@ -536,13 +560,13 @@ public class EcoEnchants {
 
         if (item.getItemMeta() instanceof EnchantmentStorageMeta) {
             ((EnchantmentStorageMeta) item.getItemMeta()).getStoredEnchants().forEach(((enchantment, integer) -> {
-                if (getFromEnchantment(enchantment) != null && getFromEnchantment(enchantment).getType().equals(type)) {
+                if (enchantment instanceof EcoEnchant ecoEnchant && ecoEnchant.getType().equals(type)) {
                     hasOfType.set(true);
                 }
             }));
         } else {
             item.getEnchantments().forEach((enchantment, integer) -> {
-                if (getFromEnchantment(enchantment) != null && (getFromEnchantment(enchantment).getType().equals(type))) {
+                if (enchantment instanceof EcoEnchant ecoEnchant && ecoEnchant.getType().equals(type)) {
                     hasOfType.set(true);
                 }
             });
@@ -552,12 +576,16 @@ public class EcoEnchants {
 
     /**
      * Update all {@link EcoEnchant}s.
+     *
+     * @param plugin Instance of EcoEnchants.
      */
     @ConfigUpdater
-    public static void update() {
+    public static void update(@NotNull final EcoEnchantsPlugin plugin) {
         for (EcoEnchant ecoEnchant : new HashSet<>(values())) {
             ecoEnchant.update();
         }
+
+        VanillaEnchantments.update(plugin);
     }
 
     /**
@@ -571,7 +599,7 @@ public class EcoEnchants {
         BY_KEY.remove(enchant.getKey());
         BY_NAME.inverse().remove(enchant);
         BY_KEY.put(enchant.getKey(), enchant);
-        BY_NAME.put(enchant.getName(), enchant);
+        BY_NAME.put(enchant.getDisplayName(), enchant);
     }
 
     /**

@@ -13,11 +13,12 @@ obtaining:
   rarity: special
 
 general-config:
+  flags: []
   targets:
     - sword
     - axe
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - knockback
     - tornado

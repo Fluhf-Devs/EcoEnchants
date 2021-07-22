@@ -13,10 +13,11 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - bow
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - punch
   maximum-level: 2

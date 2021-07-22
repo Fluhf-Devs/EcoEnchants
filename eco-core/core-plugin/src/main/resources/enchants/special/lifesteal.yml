@@ -13,14 +13,16 @@ obtaining:
   rarity: special
 
 general-config:
+  flags: []
   targets:
     - sword
     - axe
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - leeching
   maximum-level: 3
 
 config:
   health-per-level: 2 # Level * Health = Amount of health to heal
+  allow-not-fully-charged: false

@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -57,11 +58,10 @@ public class LootPopulator extends BlockPopulator {
 
         for (BlockState state : chunk.getTileEntities()) {
             Block block = state.getBlock();
-            if (!(block.getState() instanceof Chest)) {
+            if (!(block.getState() instanceof Chest chestState)) {
                 continue;
             }
 
-            Chest chestState = (Chest) block.getState();
             Inventory inventory = chestState.getBlockInventory();
 
             for (ItemStack item : inventory) {
@@ -75,7 +75,7 @@ public class LootPopulator extends BlockPopulator {
                     continue;
                 }
 
-                HashMap<Enchantment, Integer> toAdd = new HashMap<>();
+                Map<Enchantment, Integer> toAdd = new HashMap<>();
 
                 ArrayList<EcoEnchant> enchantments = new ArrayList<>(EcoEnchants.values());
                 Collections.shuffle(enchantments); // Prevent list bias towards early enchantments like telekinesis
@@ -88,6 +88,8 @@ public class LootPopulator extends BlockPopulator {
                 if (plugin.getConfigYml().getBool("loot.reduce-probability.enabled")) {
                     multiplier /= plugin.getConfigYml().getDouble("loot.reduce-probability.factor");
                 }
+
+                int cap = 0;
 
                 for (EcoEnchant enchantment : enchantments) {
                     if (enchantment == null || enchantment.getRarity() == null) {
@@ -119,7 +121,7 @@ public class LootPopulator extends BlockPopulator {
                             anyConflicts.set(true);
                         }
 
-                        EcoEnchant ecoEnchant = EcoEnchants.getFromEnchantment(enchant);
+                        EcoEnchant ecoEnchant = (EcoEnchant) enchant;
                         if (enchantment.getType().equals(ecoEnchant.getType()) && ecoEnchant.getType().isSingular()) {
                             anyConflicts.set(true);
                         }
@@ -146,10 +148,19 @@ public class LootPopulator extends BlockPopulator {
                     if (plugin.getConfigYml().getBool("loot.reduce-probability.enabled")) {
                         multiplier /= plugin.getConfigYml().getDouble("loot.reduce-probability.factor");
                     }
+
+                    if (!enchantment.hasFlag("hard-cap-ignore")) {
+                        cap++;
+                    }
+
+                    if (plugin.getConfigYml().getBool("anvil.hard-cap.enabled")) {
+                        if (cap >= plugin.getConfigYml().getInt("anvil.hard-cap.cap")) {
+                            break;
+                        }
+                    }
                 }
 
-                if (item.getItemMeta() instanceof EnchantmentStorageMeta) {
-                    EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+                if (item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
                     toAdd.forEach(((enchantment, integer) -> meta.addStoredEnchant(enchantment, integer, false)));
                     item.setItemMeta(meta);
                 } else {

@@ -13,10 +13,11 @@ obtaining:
   rarity: veryspecial
 
 general-config:
+  flags: []
   targets:
     - bow
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - power
     - revenant

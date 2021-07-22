@@ -13,11 +13,12 @@ obtaining:
   rarity: legendary
 
 general-config:
+  flags: []
   targets:
     - bow
     - crossbow
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - mortality
   maximum-level: 4

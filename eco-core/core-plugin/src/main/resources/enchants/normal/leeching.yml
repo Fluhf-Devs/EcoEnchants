@@ -13,14 +13,16 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - sword
     - axe
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - life_steal
   maximum-level: 3
 
 config:
   health-per-level: 1 # Level * Health = Amount of health to heal
+  allow-not-fully-charged: false

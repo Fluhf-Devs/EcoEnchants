@@ -1,12 +1,13 @@
 package com.willfp.ecoenchants.enchantments.support.merging.anvil;
 
+import com.willfp.eco.core.tuples.Pair;
 import com.willfp.eco.util.StringUtils;
-import com.willfp.eco.util.tuplets.Pair;
 import com.willfp.ecoenchants.EcoEnchantsPlugin;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentTarget;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
+import com.willfp.ecoenchants.proxy.proxies.FastGetEnchantsProxy;
 import lombok.experimental.UtilityClass;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -37,11 +38,11 @@ public class AnvilMerge {
     /**
      * Merge items in anvil.
      *
-     * @param left   The {@link ItemStack} on the left of the anvil.
-     * @param right  The {@link ItemStack} in the middle of the anvil.
-     * @param old    The previous {@link ItemStack} result.
-     * @param itemName   The anvil display name.
-     * @param player The player merging (for permissions).
+     * @param left     The {@link ItemStack} on the left of the anvil.
+     * @param right    The {@link ItemStack} in the middle of the anvil.
+     * @param old      The previous {@link ItemStack} result.
+     * @param itemName The anvil display name.
+     * @param player   The player merging (for permissions).
      * @return The result, stored as a {@link Pair} of {@link ItemStack} and {@link Integer}.
      */
     public Pair<ItemStack, Integer> doMerge(@Nullable final ItemStack left,
@@ -49,7 +50,14 @@ public class AnvilMerge {
                                             @Nullable final ItemStack old,
                                             @NotNull final String itemName,
                                             @NotNull final Player player) {
-        // Here so it can be accessed later (scope)
+        /*
+        If you're currently looking at this code,
+        pray to whatever god you have that any changes
+        don't cause things to break.
+
+        I have no idea how this code works, it does - and it scares me.
+        I'll just pretend that I understand it and never look at it again.
+         */
 
         // Copied to non-final string.
         String name = itemName;
@@ -70,7 +78,7 @@ public class AnvilMerge {
         name = name.replace("§", "&");
 
         if (player.hasPermission("ecoenchants.anvil.color")) {
-            name = StringUtils.translate(name);
+            name = StringUtils.format(name);
         }
 
         if (!EnchantmentTarget.ALL.getMaterials().contains(left.getType()) || right == null || !EnchantmentTarget.ALL.getMaterials().contains(right.getType())) {
@@ -116,22 +124,14 @@ public class AnvilMerge {
             return new Pair<>(null, null);
         }
 
-        HashMap<Enchantment, Integer> leftEnchants = new HashMap<>();
-        HashMap<Enchantment, Integer> rightEnchants = new HashMap<>();
+        if (left.getAmount() != right.getAmount()) {
+            return new Pair<>(null, null);
+        }
 
         Map<Enchantment, Integer> outEnchants = new HashMap<>();
 
-        if (left.getItemMeta() instanceof EnchantmentStorageMeta) {
-            leftEnchants.putAll(((EnchantmentStorageMeta) left.getItemMeta()).getStoredEnchants());
-        } else {
-            leftEnchants.putAll(left.getItemMeta().getEnchants());
-        }
-
-        if (right.getItemMeta() instanceof EnchantmentStorageMeta) {
-            rightEnchants.putAll(((EnchantmentStorageMeta) right.getItemMeta()).getStoredEnchants());
-        } else {
-            rightEnchants.putAll(right.getItemMeta().getEnchants());
-        }
+        HashMap<Enchantment, Integer> leftEnchants = new HashMap<>(PLUGIN.getProxy(FastGetEnchantsProxy.class).getEnchantmentsOnItem(left, true));
+        HashMap<Enchantment, Integer> rightEnchants = new HashMap<>(PLUGIN.getProxy(FastGetEnchantsProxy.class).getEnchantmentsOnItem(right, true));
 
         leftEnchants.forEach(((enchantment, integer) -> {
             int level = integer;
@@ -148,6 +148,22 @@ public class AnvilMerge {
                 rightEnchants.remove(enchantment);
             }
 
+            if (PLUGIN.getConfigYml().getBool("anvil.hard-cap.enabled")) {
+                if (!player.hasPermission("ecoenchants.anvil.bypasshardcap")) {
+                    if (outEnchants.keySet()
+                            .stream()
+                            .filter(enchant -> {
+                                if (enchant instanceof EcoEnchant) {
+                                    return !((EcoEnchant) enchant).hasFlag("hard-cap-ignore");
+                                }
+
+                                return true;
+                            }).count() >= PLUGIN.getConfigYml().getInt("anvil.hard-cap.cap")) {
+                        return;
+                    }
+                }
+            }
+
             outEnchants.put(enchantment, level);
         }));
 
@@ -155,8 +171,7 @@ public class AnvilMerge {
             AtomicBoolean doesConflict = new AtomicBoolean(false);
 
             EnchantmentType.values().forEach(enchantmentType -> {
-                EcoEnchant enchant = EcoEnchants.getFromEnchantment(enchantment);
-                if (enchant == null) {
+                if (!(enchantment instanceof EcoEnchant enchant)) {
                     return;
                 }
                 if (enchant.getType().equals(enchantmentType) && EcoEnchants.hasAnyOfType(left, enchantmentType) && enchantmentType.isSingular()) {
@@ -178,10 +193,23 @@ public class AnvilMerge {
                 canEnchantItem = true;
             }
 
-            if (canEnchantItem && !doesConflict.get()) {
-                if (PLUGIN.getConfigYml().getBool("anvil.hard-cap.enabled") && !player.hasPermission("ecoenchants.anvil.bypasshardcap") && outEnchants.size() >= PLUGIN.getConfigYml().getInt("anvil.hard-cap.cap")) {
-                    return;
+            if (PLUGIN.getConfigYml().getBool("anvil.hard-cap.enabled")) {
+                if (!player.hasPermission("ecoenchants.anvil.bypasshardcap")) {
+                    if (outEnchants.keySet()
+                            .stream()
+                            .filter(enchant -> {
+                                if (enchant instanceof EcoEnchant) {
+                                    return !((EcoEnchant) enchant).hasFlag("hard-cap-ignore");
+                                }
+
+                                return true;
+                            }).count() >= PLUGIN.getConfigYml().getInt("anvil.hard-cap.cap")) {
+                        doesConflict.set(true);
+                    }
                 }
+            }
+
+            if (canEnchantItem && !doesConflict.get()) {
                 outEnchants.put(enchantment, integer);
             }
         }));
@@ -197,8 +225,7 @@ public class AnvilMerge {
 
         ItemStack output = left.clone();
 
-        if (output.getItemMeta() instanceof EnchantmentStorageMeta) {
-            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) output.getItemMeta();
+        if (output.getItemMeta() instanceof EnchantmentStorageMeta meta) {
             meta.getStoredEnchants().forEach(((enchantment, integer) -> {
                 meta.removeStoredEnchant(enchantment);
             }));
@@ -236,12 +263,12 @@ public class AnvilMerge {
         AtomicInteger inEnchantLevels = new AtomicInteger();
 
         outEnchants.forEach(((enchantment, integer) -> {
-            if (EcoEnchants.getFromEnchantment(enchantment) != null) {
+            if (enchantment instanceof EcoEnchant) {
                 outEnchantLevels.addAndGet(integer);
             }
         }));
         leftEnchants.forEach(((enchantment, integer) -> {
-            if (EcoEnchants.getFromEnchantment(enchantment) != null) {
+            if (enchantment instanceof EcoEnchant) {
                 outEnchantLevels.addAndGet(integer);
             }
         }));

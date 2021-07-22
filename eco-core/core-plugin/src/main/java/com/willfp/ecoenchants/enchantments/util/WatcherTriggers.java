@@ -1,20 +1,23 @@
 package com.willfp.ecoenchants.enchantments.util;
 
-import com.google.common.collect.Sets;
-import com.willfp.eco.util.events.armorequip.ArmorEquipEvent;
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
-import com.willfp.eco.util.internal.PluginDependent;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
+import com.willfp.eco.core.EcoPlugin;
+import com.willfp.eco.core.PluginDependent;
+import com.willfp.eco.core.config.updating.ConfigUpdater;
+import com.willfp.eco.core.events.ArmorEquipEvent;
+import com.willfp.eco.core.events.PlayerJumpEvent;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.core.integrations.mcmmo.McmmoManager;
+import com.willfp.ecoenchants.EcoEnchantsPlugin;
+import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
-import com.willfp.eco.util.integrations.mcmmo.McmmoManager;
-import com.willfp.ecoenchants.proxy.proxies.TridentStackProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,34 +28,34 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.DecimalFormat;
-import java.util.Set;
-import java.util.UUID;
+import java.util.Map;
 
-@SuppressWarnings("deprecation")
-public class WatcherTriggers extends PluginDependent implements Listener {
+public class WatcherTriggers extends PluginDependent<EcoPlugin> implements Listener {
     /**
-     * For jump listeners.
+     * If watchers should be triggered against npcs.
      */
-    private static final Set<UUID> PREVIOUS_PLAYERS_ON_GROUND = Sets.newHashSet();
-
-    /**
-     * For jump listeners.
-     */
-    private static final DecimalFormat FORMAT = new DecimalFormat("0.00");
+    private static boolean allowOnNPC = false;
 
     /**
      * Create new listener for watcher events.
      *
      * @param plugin The plugin to link the events to.
      */
-    public WatcherTriggers(@NotNull final AbstractEcoPlugin plugin) {
+    public WatcherTriggers(@NotNull final EcoPlugin plugin) {
         super(plugin);
+    }
+
+    /**
+     * Update if allowed on npc.
+     *
+     * @param plugin Instance of EcoEnchants.
+     */
+    @ConfigUpdater
+    public static void update(@NotNull final EcoEnchantsPlugin plugin) {
+        allowOnNPC = plugin.getConfigYml().getBool("allow-on-npc");
     }
 
     /**
@@ -66,11 +69,11 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getDamager() instanceof Arrow)) {
+        if (!(event.getDamager() instanceof Arrow arrow)) {
             return;
         }
 
-        if (!(event.getEntity() instanceof LivingEntity)) {
+        if (!(event.getEntity() instanceof LivingEntity victim)) {
             return;
         }
 
@@ -78,16 +81,14 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(((Arrow) event.getDamager()).getShooter() instanceof LivingEntity)) {
+        if (!(((Arrow) event.getDamager()).getShooter() instanceof LivingEntity attacker)) {
             return;
         }
 
-        LivingEntity attacker = (LivingEntity) ((Arrow) event.getDamager()).getShooter();
-        Arrow arrow = (Arrow) event.getDamager();
-        LivingEntity victim = (LivingEntity) event.getEntity();
-
-        if (victim.hasMetadata("NPC")) {
-            return;
+        if (!allowOnNPC) {
+            if (victim.hasMetadata("NPC")) {
+                return;
+            }
         }
 
         if (attacker instanceof Player && !AntigriefManager.canInjure((Player) attacker, victim)) {
@@ -126,11 +127,11 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getDamager() instanceof Trident)) {
+        if (!(event.getDamager() instanceof Trident trident)) {
             return;
         }
 
-        if (!(((Trident) event.getDamager()).getShooter() instanceof LivingEntity)) {
+        if (!(((Trident) event.getDamager()).getShooter() instanceof LivingEntity attacker)) {
             return;
         }
 
@@ -138,7 +139,7 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity() instanceof LivingEntity)) {
+        if (!(event.getEntity() instanceof LivingEntity victim)) {
             return;
         }
 
@@ -146,14 +147,12 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        LivingEntity attacker = (LivingEntity) ((Trident) event.getDamager()).getShooter();
-        Trident trident = (Trident) event.getDamager();
-        ItemStack item = ProxyUtils.getProxy(TridentStackProxy.class).getTridentStack(trident);
+        ItemStack item = trident.getItem();
 
-        LivingEntity victim = (LivingEntity) event.getEntity();
-
-        if (victim.hasMetadata("NPC")) {
-            return;
+        if (!allowOnNPC) {
+            if (victim.hasMetadata("NPC")) {
+                return;
+            }
         }
 
         if (attacker instanceof Player && !AntigriefManager.canInjure((Player) attacker, victim)) {
@@ -183,44 +182,28 @@ public class WatcherTriggers extends PluginDependent implements Listener {
      * @param event The event to listen for.
      */
     @EventHandler(ignoreCancelled = true)
-    public void onJump(@NotNull final PlayerMoveEvent event) {
+    public void onJump(@NotNull final PlayerJumpEvent event) {
         if (McmmoManager.isFake(event)) {
             return;
         }
 
         Player player = event.getPlayer();
-        if (player.getVelocity().getY() > 0) {
-            float jumpVelocity = 0.42f;
-            if (player.hasPotionEffect(PotionEffectType.JUMP)) {
-                jumpVelocity += ((float) player.getPotionEffect(PotionEffectType.JUMP).getAmplifier() + 1) * 0.1F;
+
+        EnchantChecks.getEnchantsOnArmor(player).forEach((enchant, level) -> {
+            if (event.isCancelled()) {
+                return;
             }
-            jumpVelocity = Float.parseFloat(FORMAT.format(jumpVelocity).replace(',', '.'));
-            if (event.getPlayer().getLocation().getBlock().getType() != Material.LADDER
-                    && PREVIOUS_PLAYERS_ON_GROUND.contains(player.getUniqueId())
-                    && !player.isOnGround()
-                    && Float.compare((float) player.getVelocity().getY(), jumpVelocity) == 0) {
-                EnchantChecks.getEnchantsOnArmor(player).forEach((enchant, level) -> {
-                    if (event.isCancelled()) {
-                        return;
-                    }
 
-                    if (!enchant.isEnabled()) {
-                        return;
-                    }
-
-                    if (enchant.getDisabledWorlds().contains(player.getWorld())) {
-                        return;
-                    }
-
-                    enchant.onJump(player, level, event);
-                });
+            if (!enchant.isEnabled()) {
+                return;
             }
-        }
-        if (player.isOnGround()) {
-            PREVIOUS_PLAYERS_ON_GROUND.add(player.getUniqueId());
-        } else {
-            PREVIOUS_PLAYERS_ON_GROUND.remove(player.getUniqueId());
-        }
+
+            if (enchant.getDisabledWorlds().contains(player.getWorld())) {
+                return;
+            }
+
+            enchant.onJump(player, level, event);
+        });
     }
 
     /**
@@ -234,11 +217,11 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getDamager() instanceof LivingEntity)) {
+        if (!(event.getDamager() instanceof LivingEntity attacker)) {
             return;
         }
 
-        if (!(event.getEntity() instanceof LivingEntity)) {
+        if (!(event.getEntity() instanceof LivingEntity victim)) {
             return;
         }
 
@@ -250,11 +233,10 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        LivingEntity attacker = (LivingEntity) event.getDamager();
-        LivingEntity victim = (LivingEntity) event.getEntity();
-
-        if (victim.hasMetadata("NPC")) {
-            return;
+        if (!allowOnNPC) {
+            if (victim.hasMetadata("NPC")) {
+                return;
+            }
         }
 
         if (attacker instanceof Player && !AntigriefManager.canInjure((Player) attacker, victim)) {
@@ -314,6 +296,56 @@ public class WatcherTriggers extends PluginDependent implements Listener {
     }
 
     /**
+     * Called when an entity launches a projectile.
+     *
+     * @param event The event to listen for.
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void onProjectileLaunch(@NotNull final ProjectileLaunchEvent event) {
+        if (McmmoManager.isFake(event)) {
+            return;
+        }
+
+        if (!(event.getEntity() instanceof AbstractArrow)) {
+            return;
+        }
+
+        if (!(event.getEntity().getShooter() instanceof Player)) {
+            return;
+        }
+
+        LivingEntity shooter = (LivingEntity) event.getEntity().getShooter();
+
+        Projectile projectile = event.getEntity();
+
+        if (shooter.getEquipment() == null) {
+            return;
+        }
+
+        ItemStack item = shooter.getEquipment().getItemInMainHand();
+
+        if (projectile instanceof Trident trident) {
+            item = trident.getItem();
+        }
+
+        EnchantChecks.getEnchantsOnItem(item).forEach((enchant, level) -> {
+            if (event.isCancelled()) {
+                return;
+            }
+
+            if (!enchant.isEnabled()) {
+                return;
+            }
+
+            if (enchant.getDisabledWorlds().contains(shooter.getWorld())) {
+                return;
+            }
+
+            enchant.onProjectileLaunch(shooter, projectile, level, event);
+        });
+    }
+
+    /**
      * Called when an entity takes fall damage.
      *
      * @param event The event to listen for.
@@ -328,11 +360,9 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity() instanceof LivingEntity)) {
+        if (!(event.getEntity() instanceof LivingEntity victim)) {
             return;
         }
-
-        LivingEntity victim = (LivingEntity) event.getEntity();
 
         EnchantChecks.getEnchantsOnArmor(victim).forEach((enchant, level) -> {
             if (event.isCancelled()) {
@@ -362,20 +392,17 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity().getShooter() instanceof LivingEntity)) {
+        if (!(event.getEntity().getShooter() instanceof LivingEntity shooter)) {
             return;
         }
 
-        if (!(event.getEntity() instanceof Arrow)) {
+        if (!(event.getEntity() instanceof Arrow arrow)) {
             return;
         }
 
         if (event.getEntity().getShooter() == null) {
             return;
         }
-
-        Arrow arrow = (Arrow) event.getEntity();
-        LivingEntity shooter = (LivingEntity) event.getEntity().getShooter();
 
         EnchantChecks.getEnchantsOnArrow(arrow).forEach(((enchant, level) -> {
             if (!enchant.isEnabled()) {
@@ -401,7 +428,7 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity().getShooter() instanceof LivingEntity)) {
+        if (!(event.getEntity().getShooter() instanceof LivingEntity shooter)) {
             return;
         }
 
@@ -409,15 +436,13 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity() instanceof Trident)) {
+        if (!(event.getEntity() instanceof Trident trident)) {
             return;
         }
 
-        Trident trident = (Trident) event.getEntity();
-        ItemStack item = ProxyUtils.getProxy(TridentStackProxy.class).getTridentStack(trident);
-        LivingEntity shooter = (LivingEntity) event.getEntity().getShooter();
+        ItemStack item = trident.getItem();
 
-        EnchantChecks.getEnchantsOnItem(item).forEach(((enchant, level) -> {
+        EnchantChecks.getEnchantsOnItem(item).forEach((enchant, level) -> {
             if (!enchant.isEnabled()) {
                 return;
             }
@@ -427,7 +452,7 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             }
 
             enchant.onTridentHit(shooter, level, event);
-        }));
+        });
     }
 
     /**
@@ -480,11 +505,9 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity() instanceof LivingEntity)) {
+        if (!(event.getEntity() instanceof LivingEntity victim)) {
             return;
         }
-
-        LivingEntity victim = (LivingEntity) event.getEntity();
 
         EnchantChecks.getEnchantsOnArmor(victim).forEach((enchant, level) -> {
             if (event.isCancelled()) {
@@ -517,10 +540,6 @@ public class WatcherTriggers extends PluginDependent implements Listener {
         Player player = event.getPlayer();
 
         this.getPlugin().getScheduler().runLater(() -> EcoEnchants.values().forEach(enchant -> {
-            if (event.isCancelled()) {
-                return;
-            }
-
             if (!enchant.isEnabled()) {
                 return;
             }
@@ -580,7 +599,7 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity() instanceof Trident)) {
+        if (!(event.getEntity() instanceof Trident trident)) {
             return;
         }
 
@@ -588,9 +607,8 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        Trident trident = (Trident) event.getEntity();
         LivingEntity shooter = (LivingEntity) trident.getShooter();
-        ItemStack item = ProxyUtils.getProxy(TridentStackProxy.class).getTridentStack(trident);
+        ItemStack item = trident.getItem();
 
         EnchantChecks.getEnchantsOnItem(item).forEach((enchant, level) -> {
             if (event.isCancelled()) {
@@ -620,17 +638,13 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        if (!(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player blocker)) {
             return;
         }
 
-        if (!(event.getDamager() instanceof LivingEntity)) {
+        if (!(event.getDamager() instanceof LivingEntity attacker)) {
             return;
         }
-
-        Player blocker = (Player) event.getEntity();
-
-        LivingEntity attacker = (LivingEntity) event.getDamager();
 
         if (!blocker.isBlocking()) {
             return;
@@ -640,7 +654,11 @@ public class WatcherTriggers extends PluginDependent implements Listener {
             return;
         }
 
-        EcoEnchants.values().forEach(enchant -> {
+        Map<EcoEnchant, Integer> enchants = blocker.getInventory().getItemInMainHand().getType() == Material.SHIELD
+                ? EnchantChecks.getEnchantsOnMainhand(blocker)
+                : EnchantChecks.getEnchantsOnOffhand(blocker);
+
+        enchants.forEach((enchant, level) -> {
             if (event.isCancelled()) {
                 return;
             }
@@ -653,17 +671,6 @@ public class WatcherTriggers extends PluginDependent implements Listener {
                 return;
             }
 
-            int level;
-
-            if (!EnchantChecks.offhand(blocker, enchant) && !EnchantChecks.mainhand(blocker, enchant)) {
-                return;
-            }
-
-            if (EnchantChecks.offhand(blocker, enchant)) {
-                level = EnchantChecks.getOffhandLevel(blocker, enchant);
-            } else {
-                level = EnchantChecks.getMainhandLevel(blocker, enchant);
-            }
             enchant.onDeflect(blocker, attacker, level, event);
         });
     }

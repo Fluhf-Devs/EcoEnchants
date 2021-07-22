@@ -15,17 +15,16 @@ public class Rejuvenation extends EcoEnchant {
                 "rejuvenation", EnchantmentType.NORMAL
         );
     }
+
     @EventHandler
     public void onRejuvenationHeal(@NotNull final EntityRegainHealthEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player player)) {
             return;
         }
 
         if (!event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED) && !event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.REGEN)) {
             return;
         }
-
-        Player player = (Player) event.getEntity();
 
         int totalRejuvenationPoints = EnchantChecks.getArmorPoints(player, this, 0);
         if (this.getDisabledWorlds().contains(player.getWorld())) {

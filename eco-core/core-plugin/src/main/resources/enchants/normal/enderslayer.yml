@@ -13,11 +13,12 @@ obtaining:
   rarity: common
 
 general-config:
+  flags: []
   targets:
     - sword
     - axe
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - sharpness
     - bane_of_arthropods
@@ -25,6 +26,7 @@ general-config:
     - defusion
     - razor
     - butchering
+    - introversion
   maximum-level: 5
 
 config:

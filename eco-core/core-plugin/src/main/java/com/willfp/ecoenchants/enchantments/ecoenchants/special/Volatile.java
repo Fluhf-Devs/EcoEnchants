@@ -1,12 +1,9 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.special;
-
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantmentUtils;
-import com.willfp.ecoenchants.proxy.proxies.CooldownProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -25,14 +22,11 @@ public class Volatile extends EcoEnchant {
                               @NotNull final LivingEntity victim,
                               final int level,
                               @NotNull final EntityDamageByEntityEvent event) {
-        if (!(uncastAttacker instanceof Player)) {
+        if (!(uncastAttacker instanceof Player attacker)) {
             return;
         }
 
-        Player attacker = (Player) uncastAttacker;
-
-        if (ProxyUtils.getProxy(CooldownProxy.class).getAttackCooldown(attacker) != 1.0f
-                && !this.getConfig().getBool(EcoEnchants.CONFIG_LOCATION + "allow-not-fully-charged")) {
+        if (!EnchantmentUtils.isFullyChargeIfRequired(this, attacker)) {
             return;
         }
 

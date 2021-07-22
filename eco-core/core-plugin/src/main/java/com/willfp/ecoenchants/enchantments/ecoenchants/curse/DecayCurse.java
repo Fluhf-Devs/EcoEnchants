@@ -1,11 +1,11 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.curse;
 
 import com.willfp.eco.util.DurabilityUtils;
-import com.willfp.eco.util.interfaces.EcoRunnable;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantChecks;
+import com.willfp.ecoenchants.enchantments.util.TimedRunnable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDropItemEvent;
@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DecayCurse extends EcoEnchant implements EcoRunnable {
+public class DecayCurse extends EcoEnchant implements TimedRunnable {
     private final Set<Player> players = new HashSet<>();
     private int amount = this.getConfig().getInt(EcoEnchants.CONFIG_LOCATION + "multiplier");
 

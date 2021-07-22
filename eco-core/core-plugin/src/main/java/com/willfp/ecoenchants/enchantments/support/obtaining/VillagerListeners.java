@@ -1,9 +1,8 @@
 package com.willfp.ecoenchants.enchantments.support.obtaining;
 
-
+import com.willfp.eco.core.EcoPlugin;
+import com.willfp.eco.core.PluginDependent;
 import com.willfp.eco.util.NumberUtils;
-import com.willfp.eco.util.internal.PluginDependent;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentTarget;
@@ -25,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class VillagerListeners extends PluginDependent implements Listener {
+public class VillagerListeners extends PluginDependent<EcoPlugin> implements Listener {
     /**
      * Create new villager listeners.
      *
      * @param plugin The plugin.
      */
-    public VillagerListeners(@NotNull final AbstractEcoPlugin plugin) {
+    public VillagerListeners(@NotNull final EcoPlugin plugin) {
         super(plugin);
     }
 
@@ -58,11 +57,9 @@ public class VillagerListeners extends PluginDependent implements Listener {
         float priceMultiplier = event.getRecipe().getPriceMultiplier();
         List<ItemStack> ingredients = event.getRecipe().getIngredients();
 
-        if (!(result.getItemMeta() instanceof EnchantmentStorageMeta)) {
+        if (!(result.getItemMeta() instanceof EnchantmentStorageMeta meta)) {
             return;
         }
-
-        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
 
         ArrayList<EcoEnchant> enchantments = new ArrayList<>(EcoEnchants.values());
         Collections.shuffle(enchantments); // Prevent list bias towards early enchantments like telekinesis
@@ -178,9 +175,11 @@ public class VillagerListeners extends PluginDependent implements Listener {
                     anyConflicts.set(true);
                 }
 
-                EcoEnchant ecoEnchant = EcoEnchants.getFromEnchantment(enchant);
+                if (enchantment.conflictsWith(enchant)) {
+                    anyConflicts.set(true);
+                }
 
-                if (enchantment.getType().equals(ecoEnchant.getType()) && ecoEnchant.getType().isSingular()) {
+                if (enchantment.getType().equals(enchant.getType()) && enchant.getType().isSingular()) {
                     anyConflicts.set(true);
                 }
             });

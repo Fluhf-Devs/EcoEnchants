@@ -13,11 +13,12 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - bow
     - crossbow
   grindstoneable: true
-  conflicts: []
+  conflicts: [ ]
   maximum-level: 3
 
 config:

@@ -1,15 +1,13 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
-import com.willfp.eco.util.drops.DropQueue;
-import com.willfp.eco.util.events.entitydeathbyentity.EntityDeathByEntityEvent;
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
-import com.willfp.eco.util.integrations.mcmmo.McmmoManager;
+import com.willfp.eco.core.drops.DropQueue;
+import com.willfp.eco.core.events.EntityDeathByEntityEvent;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.core.integrations.mcmmo.McmmoManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import com.willfp.ecoenchants.enchantments.util.EnchantChecks;
-import com.willfp.ecoenchants.proxy.proxies.TridentStackProxy;
-import com.willfp.ecoenchants.util.ProxyUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -23,6 +21,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +40,7 @@ public class Telekinesis extends EcoEnchant {
 
     @Override
     protected void postUpdate() {
-        always = this.getPlugin().getConfigYml().getBool("drops.force-dropqueue");
+        always = this.getPlugin().getConfigYml().getBool("advanced.force-dropqueue");
     }
 
     // For block drops
@@ -150,10 +149,10 @@ public class Telekinesis extends EcoEnchant {
                 player = (Player) ((Arrow) event.getKiller()).getShooter();
                 item = player.getInventory().getItemInMainHand();
             }
-        } else if (event.getKiller() instanceof Trident) {
-            if (((Trident) event.getKiller()).getShooter() instanceof Player) {
-                player = (Player) ((Trident) event.getKiller()).getShooter();
-                item = ProxyUtils.getProxy(TridentStackProxy.class).getTridentStack((Trident) event.getKiller());
+        } else if (event.getKiller() instanceof Trident trident) {
+            if (trident.getShooter() instanceof Player) {
+                player = (Player) trident.getShooter();
+                item = trident.getItem();
             }
         }
 
@@ -172,7 +171,19 @@ public class Telekinesis extends EcoEnchant {
         int xp = event.getXp();
         Collection<ItemStack> drops = event.getDrops();
 
-        drops.removeIf(itemStack -> itemStack.getItemMeta().getPersistentDataContainer().has(this.getPlugin().getNamespacedKeyFactory().create("soulbound"), PersistentDataType.INTEGER));
+        drops.removeIf(itemStack -> {
+            if (itemStack == null) {
+                return true;
+            }
+            ItemMeta meta = itemStack.getItemMeta();
+            if (meta == null) {
+                return false;
+            }
+            if (meta.getPersistentDataContainer() == null) {
+                return false;
+            }
+            return meta.getPersistentDataContainer().has(this.getPlugin().getNamespacedKeyFactory().create("soulbound"), PersistentDataType.INTEGER);
+        });
 
         new DropQueue(player)
                 .addItems(drops)

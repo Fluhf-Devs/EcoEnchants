@@ -13,11 +13,12 @@ obtaining:
   rarity: legendary
 
 general-config:
+  flags: []
   targets:
     - sword
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
   maximum-level: 2
 
 config:
@@ -25,3 +26,4 @@ config:
   cooldown: 90 # In seconds
   power: 25 # Level of levitation to give
   ticks-per-level: 6
+  not-while-sneaking: false

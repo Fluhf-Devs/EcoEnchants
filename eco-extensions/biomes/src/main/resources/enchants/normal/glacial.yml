@@ -13,13 +13,14 @@ obtaining:
   rarity: rare
 
 general-config:
+  flags: []
   targets:
     - helmet
     - chestplate
     - leggings
     - boots
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - elevation
     - heat_treated

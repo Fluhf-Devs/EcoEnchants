@@ -1,8 +1,7 @@
 package com.willfp.ecoenchants.enchantments.meta;
 
 import com.google.common.collect.ImmutableList;
-import com.willfp.eco.util.config.updating.annotations.ConfigUpdater;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
+import com.willfp.eco.core.config.updating.ConfigUpdater;
 import com.willfp.ecoenchants.EcoEnchantsPlugin;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.itemtypes.Artifact;
@@ -95,18 +94,6 @@ public class EnchantmentType {
     private final Supplier<Boolean> singularSupplier;
 
     /**
-     * If only one enchantment of this type is allowed on an item.
-     */
-    @Getter
-    private boolean singular;
-
-    /**
-     * The color of enchantments of this type to have in lore.
-     */
-    @Getter
-    private String color;
-
-    /**
      * The name of the type.
      */
     @Getter
@@ -120,6 +107,18 @@ public class EnchantmentType {
     @Getter
     @Nullable
     private final Class<? extends EcoEnchant> requiredToExtend;
+
+    /**
+     * If only one enchantment of this type is allowed on an item.
+     */
+    @Getter
+    private boolean singular;
+
+    /**
+     * The color of enchantments of this type to have in lore.
+     */
+    @Getter
+    private String color;
 
     /**
      * Create simple EnchantmentType.
@@ -202,28 +201,6 @@ public class EnchantmentType {
         REGISTERED.add(this);
     }
 
-    private void refresh() {
-        this.color = colorSupplier.get();
-        this.singular = singularSupplier.get();
-    }
-
-    @Override
-    public boolean equals(@NotNull final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof EnchantmentType)) {
-            return false;
-        }
-        EnchantmentType that = (EnchantmentType) o;
-        return Objects.equals(getName(), that.getName());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName());
-    }
-
     /**
      * Update suppliers of all types.
      */
@@ -239,5 +216,26 @@ public class EnchantmentType {
      */
     public static List<EnchantmentType> values() {
         return ImmutableList.copyOf(REGISTERED);
+    }
+
+    private void refresh() {
+        this.color = colorSupplier.get();
+        this.singular = singularSupplier.get();
+    }
+
+    @Override
+    public boolean equals(@NotNull final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EnchantmentType that)) {
+            return false;
+        }
+        return Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 }

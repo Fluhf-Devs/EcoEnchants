@@ -13,11 +13,12 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - bow
     - crossbow
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - enderism
   maximum-level: 6

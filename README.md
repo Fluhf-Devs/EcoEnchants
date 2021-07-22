@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="https://i.imgur.com/1kAQbe6.png" alt="EcoEnchants logo" width="256">
+  <img src="https://i.imgur.com/9C5wXTU.png" alt="EcoEnchants logo" width="256">
   <br>
 </h1>
 
@@ -25,12 +25,11 @@
 </p>
 
 
-[![Title](https://i.imgur.com/hyPlV1m.png)]()
-[![Features](https://i.imgur.com/Tqcu1o2.png)]()
-[![Docs](https://i.imgur.com/TRDDt5W.png)](https://ecoenchants.willfp.com/enchantments/all-enchantments)
-[![Compatibility](https://i.imgur.com/mlAGlKn.png)]()
+[![Title](https://i.imgur.com/3GMumz3.png)]()
+[![Features](https://i.imgur.com/vmSISa6.png)]()
+[![Docs](https://i.imgur.com/uS2O3ll.png)](https://ecoenchants.willfp.com/enchantments/all-enchantments)
+[![Compatibility](https://i.imgur.com/MxiF57Z.png)]()
 
 ## License
-*Click here to read [the entire license](https://github.com/Auxilor/EcoEnchants/blob/master/LICENSE.md).* 
 
-Distributing compiled versions of the plugin is not permitted.
+*Click here to read [the entire license](https://github.com/Auxilor/EcoEnchants/blob/master/LICENSE.md).*

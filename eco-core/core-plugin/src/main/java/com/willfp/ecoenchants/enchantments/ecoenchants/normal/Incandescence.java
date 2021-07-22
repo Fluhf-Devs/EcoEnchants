@@ -1,5 +1,6 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
@@ -8,6 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class Incandescence extends EcoEnchant {
@@ -16,20 +18,22 @@ public class Incandescence extends EcoEnchant {
                 "incandescence", EnchantmentType.NORMAL
         );
     }
+
     @EventHandler
     public void onIncandescenceHurt(@NotNull final EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.THORNS) {
             return;
         }
 
-        if (!(event.getDamager() instanceof LivingEntity)) {
+        if (!(event.getEntity() instanceof Player player)) {
             return;
         }
 
-        Player player = (Player) event.getEntity();
-        LivingEntity victim = (LivingEntity) event.getDamager();
+        if (!(event.getDamager() instanceof LivingEntity victim)) {
+            return;
+        }
 
-        int totalIncandescencePoints = EnchantChecks.getArmorPoints(player, this, 1);
+        int totalIncandescencePoints = EnchantChecks.getArmorPoints(player, this);
 
         if (totalIncandescencePoints == 0) {
             return;
@@ -39,9 +43,13 @@ public class Incandescence extends EcoEnchant {
             return;
         }
 
+        if (!AntigriefManager.canInjure(player, victim)) {
+            return;
+        }
+
         this.getPlugin().getScheduler().runLater(() -> victim.setFireTicks(totalIncandescencePoints
-                * this.getConfig().getInt(EcoEnchants.CONFIG_LOCATION + "ticks-per-point")
-                + this.getConfig().getInt(EcoEnchants.CONFIG_LOCATION + "initial-ticks")),
+                        * this.getConfig().getInt(EcoEnchants.CONFIG_LOCATION + "ticks-per-point")
+                        + this.getConfig().getInt(EcoEnchants.CONFIG_LOCATION + "initial-ticks")),
                 1);
     }
 }

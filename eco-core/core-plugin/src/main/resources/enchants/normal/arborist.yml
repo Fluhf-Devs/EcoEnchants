@@ -13,11 +13,12 @@ obtaining:
   rarity: rare
 
 general-config:
+  flags: []
   targets:
     - axe
     - shears
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - silk_touch
   maximum-level: 4

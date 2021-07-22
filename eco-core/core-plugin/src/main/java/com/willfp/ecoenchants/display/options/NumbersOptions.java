@@ -1,11 +1,11 @@
 package com.willfp.ecoenchants.display.options;
 
-import com.willfp.eco.util.internal.PluginDependent;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
+import com.willfp.eco.core.EcoPlugin;
+import com.willfp.eco.core.PluginDependent;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-public class NumbersOptions extends PluginDependent {
+public class NumbersOptions extends PluginDependent<EcoPlugin> {
     /**
      * If numerals should be used.
      * <p>
@@ -25,7 +25,7 @@ public class NumbersOptions extends PluginDependent {
      *
      * @param plugin EcoEnchants.
      */
-    public NumbersOptions(@NotNull final AbstractEcoPlugin plugin) {
+    public NumbersOptions(@NotNull final EcoPlugin plugin) {
         super(plugin);
     }
 

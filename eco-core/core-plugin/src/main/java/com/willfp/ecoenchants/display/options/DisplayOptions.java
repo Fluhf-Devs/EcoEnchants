@@ -1,7 +1,7 @@
 package com.willfp.ecoenchants.display.options;
 
-import com.willfp.eco.util.internal.PluginDependent;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
+import com.willfp.eco.core.EcoPlugin;
+import com.willfp.eco.core.PluginDependent;
 import com.willfp.ecoenchants.display.options.sorting.EnchantmentSorter;
 import com.willfp.ecoenchants.display.options.sorting.SortParameters;
 import com.willfp.ecoenchants.display.options.sorting.SorterManager;
@@ -18,48 +18,72 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DisplayOptions extends PluginDependent {
-    /**
-     * The enchantment sorter being used.
-     */
-    @Getter
-    private EnchantmentSorter sorter;
-
+public class DisplayOptions extends PluginDependent<EcoPlugin> {
     /**
      * The description options being used.
      */
     @Getter
     private final DescriptionOptions descriptionOptions = new DescriptionOptions(this.getPlugin());
-
     /**
      * The enchantment level options being used.
      */
     @Getter
     private final NumbersOptions numbersOptions = new NumbersOptions(this.getPlugin());
-
     /**
      * The shrink options being used.
      */
     @Getter
     private final ShrinkOptions shrinkOptions = new ShrinkOptions(this.getPlugin());
-
     /**
      * The enchantment types, sorted according to config.
      */
     @Getter
     private final List<EnchantmentType> sortedTypes = new ArrayList<>();
-
     /**
      * The enchantment rarities, sorted according to config.
      */
     @Getter
     private final List<EnchantmentRarity> sortedRarities = new ArrayList<>();
-
+    /**
+     * The enchantment sorter being used.
+     */
+    @Getter
+    private EnchantmentSorter sorter;
     /**
      * Allow reading enchantments from lore-based plugins.
      */
     @Getter
-    private boolean useLoreGetter = false;
+    private boolean usingLoreGetter = false;
+
+    /**
+     * Allow reading enchantments from lore-based plugins aggressively.
+     */
+    @Getter
+    private boolean usingAggressiveLoreGetter = false;
+
+    /**
+     * If the experimental hide fixer is being used.
+     */
+    @Getter
+    private boolean usingExperimentalHideFixer = false;
+
+    /**
+     * If the aggressive experimental hide fixer is being used.
+     */
+    @Getter
+    private boolean usingAggressiveExperimentalHideFixer = false;
+
+    /**
+     * If all items should have hide enchants removed.
+     */
+    @Getter
+    private boolean usingForceHideFixer = false;
+
+    /**
+     * If item must be a target.
+     */
+    @Getter
+    private boolean requireTarget = true;
 
     /**
      * Instantiate new display options.
@@ -67,7 +91,7 @@ public class DisplayOptions extends PluginDependent {
      * @param plugin EcoEnchants.
      */
     @ApiStatus.Internal
-    public DisplayOptions(@NotNull final AbstractEcoPlugin plugin) {
+    public DisplayOptions(@NotNull final EcoPlugin plugin) {
         super(plugin);
         update();
     }
@@ -94,7 +118,13 @@ public class DisplayOptions extends PluginDependent {
                 .collect(Collectors.toList()));
         sortedRarities.addAll(EnchantmentRarity.values().stream().filter(enchantmentRarity -> !sortedRarities.contains(enchantmentRarity)).collect(Collectors.toList()));
 
-        useLoreGetter = this.getPlugin().getConfigYml().getBool("advanced.lore-getter");
+        usingLoreGetter = this.getPlugin().getConfigYml().getBool("advanced.lore-getter.enabled");
+        usingAggressiveLoreGetter = this.getPlugin().getConfigYml().getBool("advanced.lore-getter.aggressive");
+        usingExperimentalHideFixer = this.getPlugin().getConfigYml().getBool("advanced.hide-fixer.enabled");
+        usingAggressiveExperimentalHideFixer = this.getPlugin().getConfigYml().getBool("advanced.hide-fixer.aggressive");
+        usingForceHideFixer = this.getPlugin().getConfigYml().getBool("advanced.hide-fixer.force");
+
+        requireTarget = this.getPlugin().getConfigYml().getBool("lore.require-target");
 
         boolean byType = this.getPlugin().getConfigYml().getBool("lore.sort-by-type");
         boolean byLength = this.getPlugin().getConfigYml().getBool("lore.sort-by-length");

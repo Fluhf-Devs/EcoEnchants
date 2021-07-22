@@ -13,11 +13,13 @@ obtaining:
   rarity: special
 
 general-config:
+  flags: []
   targets:
     - all
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
 
 config:
-  # No config is available for this enchantment
+  remove-after: false # If soulbound should be 1-time use
+  on-books: true # If soulbound should work on books

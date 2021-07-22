@@ -14,16 +14,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class Alchemy extends EcoEnchant {
     /**
+     * true Metadata key.
+     */
+    private final FixedMetadataValue metaKeyTrue = this.getPlugin().getMetadataValueFactory().create(true);
+
+    /**
      * Instantiate Alchemy Enchantment.
      */
     public Alchemy() {
         super("alchemy", EnchantmentType.NORMAL);
     }
-
-    /**
-     * true Metadata key.
-     */
-    private final FixedMetadataValue metaKeyTrue = this.getPlugin().getMetadataValueFactory().create(true);
 
     /**
      * Enchantment functionality.
@@ -35,11 +35,9 @@ public class Alchemy extends EcoEnchant {
         if (event.getNewEffect() == null) {
             return;
         }
-        if (!(event.getEntity() instanceof LivingEntity)) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) {
             return;
         }
-
-        LivingEntity entity = (LivingEntity) event.getEntity();
 
         if (entity.hasMetadata(event.getNewEffect().toString())) {
             return;

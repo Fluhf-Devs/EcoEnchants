@@ -1,6 +1,6 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.special;
 
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
@@ -18,17 +18,16 @@ public class Instability extends EcoEnchant {
                 "instability", EnchantmentType.SPECIAL
         );
     }
+
     @EventHandler
     public void onInstabilityLand(@NotNull final ProjectileHitEvent event) {
         if (event.getEntityType() != EntityType.ARROW) {
             return;
         }
 
-        if (!(event.getEntity().getShooter() instanceof Player)) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
             return;
         }
-
-        Player player = (Player) event.getEntity().getShooter();
 
         if (!EnchantChecks.mainhand(player, this)) {
             return;

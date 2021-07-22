@@ -13,16 +13,19 @@ obtaining:
   rarity: special
 
 general-config:
+  flags: []
   targets:
     - sword
     - axe
     - pickaxe
     - shovel
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
   maximum-level: 1
 
 config:
   activation-sound: ENTITY_PLAYER_LEVELUP
   cooldown: 450 # In seconds
+  not-while-sneaking: false
+  spawn-heart-particles: true

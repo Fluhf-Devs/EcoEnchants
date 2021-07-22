@@ -13,6 +13,7 @@ obtaining:
   rarity: rare
 
 general-config:
+  flags: []
   targets:
     - bow
     - crossbow
@@ -20,7 +21,7 @@ general-config:
     - axe
     - trident
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   conflicts:
     - altitude
     - dehydration

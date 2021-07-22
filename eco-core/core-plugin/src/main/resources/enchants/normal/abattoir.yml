@@ -13,6 +13,7 @@ obtaining:
   rarity: common
 
 general-config:
+  flags: []
   targets:
     - trident
   grindstoneable: true
@@ -24,7 +25,7 @@ general-config:
     - arachnid
     - impaling
   maximum-level: 5
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
 
 config:
   multiplier: 0.4 # Formula is (multiplier * (level + 1) + 1)*damage | Power is 0.25

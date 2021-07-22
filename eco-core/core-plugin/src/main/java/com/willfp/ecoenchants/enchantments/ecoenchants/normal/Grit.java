@@ -1,7 +1,7 @@
 package com.willfp.ecoenchants.enchantments.ecoenchants.normal;
 
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager;
 import com.willfp.eco.util.DurabilityUtils;
-import com.willfp.eco.util.integrations.antigrief.AntigriefManager;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
@@ -21,16 +21,13 @@ public class Grit extends EcoEnchant {
 
     @EventHandler
     public void onGritHurt(@NotNull final EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player player)) {
             return;
         }
 
-        if (!(event.getDamager() instanceof Player)) {
+        if (!(event.getDamager() instanceof Player attacker)) {
             return;
         }
-
-        Player player = (Player) event.getEntity();
-        Player attacker = (Player) event.getDamager();
 
         if (!AntigriefManager.canInjure(attacker, player)) {
             return;

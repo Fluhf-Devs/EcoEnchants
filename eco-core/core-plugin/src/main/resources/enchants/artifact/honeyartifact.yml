@@ -13,6 +13,7 @@ obtaining:
   rarity: epic
 
 general-config:
+  flags: []
   targets:
     - pickaxe
     - sword
@@ -22,14 +23,15 @@ general-config:
     - crossbow
     - trident
   grindstoneable: true
-  disabled-in-worlds: []
-  conflicts: []
+  disabled-in-worlds: [ ]
+  conflicts: [ ]
 
 config:
   # For Attack
   radius: 1
   y-delta: 0.07
   radius-multiplier: 5
+  use-double-helix: false|
 
   # For Arrows + Tridents
   particle-tick-delay: 2
@@ -42,5 +44,6 @@ config:
     - lapis_ore
     - redstone_ore
     - iron_ore
+    - copper_ore
     - obsidian
     - ancient_debris

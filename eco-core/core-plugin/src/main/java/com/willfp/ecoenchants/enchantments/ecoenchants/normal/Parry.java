@@ -15,17 +15,16 @@ public class Parry extends EcoEnchant {
                 "parry", EnchantmentType.NORMAL
         );
     }
+
     @EventHandler
     public void parryHit(@NotNull final EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player player)) {
             return;
         }
 
         if (event.isCancelled()) {
             return;
         }
-
-        Player player = (Player) event.getEntity();
 
         if (!EnchantChecks.mainhand(player, this)) {
             return;

@@ -1,11 +1,12 @@
 package com.willfp.ecoenchants.enchantments.support.obtaining;
 
 import com.google.common.collect.ImmutableSet;
+import com.willfp.eco.core.EcoPlugin;
+import com.willfp.eco.core.PluginDependent;
 import com.willfp.eco.util.NumberUtils;
-import com.willfp.eco.util.internal.PluginDependent;
-import com.willfp.eco.util.plugin.AbstractEcoPlugin;
 import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import com.willfp.ecoenchants.enchantments.EcoEnchants;
+import com.willfp.ecoenchants.enchantments.meta.EnchantmentTarget;
 import com.willfp.ecoenchants.enchantments.meta.EnchantmentType;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -28,7 +29,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EnchantingListeners extends PluginDependent implements Listener {
+public class EnchantingListeners extends PluginDependent<EcoPlugin> implements Listener {
+    /**
+     * All players currently enchanting a secondary item.
+     */
+    public static final Map<Player, int[]> CURRENTLY_ENCHANTING_SECONDARY = new HashMap<>();
     /**
      * All enchantments that by default cannot be enchanted in a table but are in EcoEnchants.
      */
@@ -37,19 +42,15 @@ public class EnchantingListeners extends PluginDependent implements Listener {
             .add(Material.SHIELD)
             .add(Material.FLINT_AND_STEEL)
             .add(Material.SHEARS)
-            .add(Material.CARROT_ON_A_STICK).build();
-
-    /**
-     * All players currently enchanting a secondary item.
-     */
-    public static final Map<Player, int[]> CURRENTLY_ENCHANTING_SECONDARY = new HashMap<>();
+            .add(Material.CARROT_ON_A_STICK)
+            .add(Material.PLAYER_HEAD).build();
 
     /**
      * Instantiate enchanting listeners and link them to a specific plugin.
      *
      * @param plugin The plugin to link to.
      */
-    public EnchantingListeners(@NotNull final AbstractEcoPlugin plugin) {
+    public EnchantingListeners(@NotNull final EcoPlugin plugin) {
         super(plugin);
     }
 
@@ -146,8 +147,7 @@ public class EnchantingListeners extends PluginDependent implements Listener {
                     anyConflicts.set(true);
                 }
 
-                if (EcoEnchants.getFromEnchantment(enchant) != null) {
-                    EcoEnchant ecoEnchant = EcoEnchants.getFromEnchantment(enchant);
+                if (enchant instanceof EcoEnchant ecoEnchant) {
                     if (enchantment.getType().equals(ecoEnchant.getType()) && ecoEnchant.getType().isSingular()) {
                         anyConflicts.set(true);
                     }
@@ -203,9 +203,10 @@ public class EnchantingListeners extends PluginDependent implements Listener {
         // Ew
         this.getPlugin().getScheduler().runLater(() -> {
             ItemStack item0 = event.getInventory().getItem(0);
-            assert item0 != null;
-            if (item0.getItemMeta() instanceof EnchantmentStorageMeta) {
-                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item0.getItemMeta();
+            if (item0 == null) {
+                return;
+            }
+            if (item0.getItemMeta() instanceof EnchantmentStorageMeta meta) {
                 for (Enchantment enchantment : meta.getStoredEnchants().keySet()) {
                     meta.removeStoredEnchant(enchantment);
                 }
@@ -226,13 +227,22 @@ public class EnchantingListeners extends PluginDependent implements Listener {
      */
     @EventHandler
     public void secondaryEnchant(@NotNull final PrepareItemEnchantEvent event) {
+        if (!this.getPlugin().getConfigYml().getBool("enchanting-table.enabled")) {
+            return;
+        }
+
         int maxLevel = this.getPlugin().getConfigYml().getInt("enchanting-table.maximum-obtainable-level");
 
         try {
             event.getOffers()[2].setCost(NumberUtils.equalIfOver(event.getOffers()[2].getCost(), maxLevel));
-        } catch (ArrayIndexOutOfBoundsException | NullPointerException ignored) { }
+        } catch (ArrayIndexOutOfBoundsException | NullPointerException ignored) {
+        }
 
         if (!SECONDARY_ENCHANTABLE.contains(event.getItem().getType())) {
+            return;
+        }
+
+        if (!EnchantmentTarget.ALL.getMaterials().contains(event.getItem().getType())) {
             return;
         }
 

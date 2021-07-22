@@ -13,10 +13,11 @@ obtaining:
   rarity: legendary
 
 general-config:
+  flags: []
   targets:
     - pickaxe
   grindstoneable: true
-  disabled-in-worlds: []
+  disabled-in-worlds: [ ]
   maximum-level: 5
   conflicts:
     - drill
@@ -28,6 +29,7 @@ config:
   whitelisted-blocks:
     - coal_ore
     - iron_ore
+    - copper_ore
     - gold_ore
     - ancient_debris
     - lapis_ore
