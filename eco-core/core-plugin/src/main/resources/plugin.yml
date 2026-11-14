@@ -1,89 +1,79 @@
-name: EcoEnchants
-version: ${projectVersion}
+name: ${pluginName}
+version: ${version}
 main: com.willfp.ecoenchants.EcoEnchantsPlugin
-api-version: 1.15
-authors: [Auxilor]
+api-version: 1.21.8
+authors: [ Auxilor, Exanthiax, Callum ]
 website: willfp.com
 load: STARTUP
+folia-supported: true
 depend:
   - eco
-  - ProtocolLib
 softdepend:
-  - WorldGuard
-  - GriefPrevention
-  - Towny
-  - FactionsUUID
-  - Lands
-  - Kingdoms
-  - NoCheatPlus
-  - AAC
-  - Matrix
-  - Spartan
-  - Essentials
-  - PlaceholderAPI
-  - mcMMO
+  - libreforge
+  - CMI
+  - EssentialsX
 
 commands:
-  ecoreload:
-    description: Reloads config
-    permission: ecoenchants.reload
-  ecodebug:
-    description: Debug information
-    permission: ecoenchants.ecodebug
+  ecoenchants:
+    description: Base Command
+    permission: ecoenchants.command.ecoenchants
   enchantinfo:
-    description: Show information about an enchantment
-    permission: ecoenchants.enchantinfo
+    description: Show info about an enchant
+    permission: ecoenchants.command.enchantinfo
+  enchant:
+    description: Enchants an item
+    permission: ecoenchants.command.enchant
 
 permissions:
   ecoenchants.*:
     description: All ecoenchants permissions
     default: op
     children:
-      ecoenchants.fromtable.*: true
-      ecoenchants.reload: true
-      ecoenchants.updateannounce: true
-      ecoenchants.enchantinfo: true
-      ecoenchants.ecodebug: true
+      ecoenchants.command.*: true
       ecoenchants.anvil.*: true
-  ecoenchants.anvil.*:
-    description: Allows all anvil permissions
+      ecoenchants.fromtable.*: true
+  ecoenchants.command.*:
+    description: All commands
     default: op
     children:
-      ecoenchants.anvil.bypasshardcap: true
-      ecoenchants.anvil.color: true
-  ecoenchants.fromtable.*:
-    description: Allows getting all enchantments from an enchanting table
-    default: true
-
-  ecoenchants.updateannounce:
-    description: Informs admins of a new update
+      ecoenchants.command.reload: true
+      ecoenchants.command.ecoenchants: true
+      ecoenchants.command.toggledescriptions: true
+      ecoenchants.command.giverandombook: true
+      ecoenchants.command.givebook: true
+      ecoenchants.command.enchantinfo: true
+      ecoenchants.command.gui: true
+      ecoenchants.command.enchant: true
+  ecoenchants.anvil.*:
+    description: All anvil perks
     default: op
-  ecoenchants.reload:
+    children:
+      ecoenchants.anvil.color: true
+
+  ecoenchants.anvil.color:
+    description: Allows using color codes in anvils
+    default: op
+  ecoenchants.command.reload:
     description: Allows reloading the config
     default: op
-  ecoenchants.ecodebug:
-    description: Allows the use of /ecodebug to print verbose debug information to console
+  ecoenchants.command.giverandombook:
+    description: Allows giving random books
     default: op
-  ecoenchants.enchantinfo:
-    description: Allows the use of /enchantinfo to show enchant info
+  ecoenchants.command.givebook:
+    description: Allows giving enchanted books
+    default: op
+  ecoenchants.command.ecoenchants:
+    description: Allows the use of /ecoenchants.
     default: true
-  ecoenchants.anvil.bypasshardcap:
-    description: Allows bypassing the anvil hard cap
+  ecoenchants.command.toggledescriptions:
+    description: Allows the use of /ecoenchants toggledescriptions.
+    default: true
+  ecoenchants.command.enchantinfo:
+    description: Allows the use of /enchantinfo.
+    default: true
+  ecoenchants.command.gui:
+    description: Allows the use of /ecoenchants gui.
+    default: true
+  ecoenchants.command.enchant:
+    description: Allows the use of /enchant.
     default: op
-  ecoenchants.anvil.color:
-    description: Allows color from anvil renames
-    default: op
-
-  # Perks
-  ecoenchants.cooldowntime.half:
-    description: Halves the cooldown time on spells
-    default: false
-  ecoenchants.cooldowntime.third:
-    description: Thirds the cooldown time on spells
-    default: false
-  ecoenchants.cooldowntime.quarter:
-    description: Quarters the cooldown time on spells
-    default: false
-  ecoenchants.cooldowntime.75:
-    description: Reduces the cooldown time on spells by 25%
-    default: false

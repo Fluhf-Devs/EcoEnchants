@@ -1,0 +1,86 @@
+---
+title: "Advanced Configuration"
+sidebar_position: 3
+---
+
+Once your enchantments are working, these settings let you fine-tune how the plugin feels: how anvil costs scale, and how enchantment levels are distributed when players obtain them.
+
+## Cost Exponent
+
+Cost exponent is a feature of anvils, which can increase or decrease cost based on the original cost.
+
+The formula works as follows:
+
+```go
+cost = level^exponent + 1
+```
+
+So, working with an exponent of `1.02` and an original cost of `25`:
+
+```go
+cost = 25^1.02 + 1
+```
+
+This is then **rounded up** to the nearest whole number, so the cost in this example would become **28**. This formula ensures cost scaling stays fair, fun, and consistent across all levels.
+#### Configuration Tips
+
+Set the `cost-exponent` in your config to control difficulty:
+
+- `0.8` → Easy
+- `0.9` → Balanced
+- `1.0` → Vanilla-like
+- `1.2` → Harder
+## Enchantment Type Bias
+
+You might design some enchantment types (e.g. special enchantments) to be extremely rare, and require a lot of work to balance out their power.
+
+To do this, you can bias enchantment levels according to a curve.
+
+Let's use an enchantment called Razor for this example.
+
+By default, Razor has 5 Levels. So, to calculate the level to apply, a random number between 0 and 1 is generated. This number is then biased according to a curve, which means that more inputs give a lower output, so for example 0.7 may become 0.1, and only extremely high inputs, such as 0.99 may become 0.6 or higher.
+
+The "band" for each level is calculated by dividing 1 by the amount of levels. This looks like this for an enchantment with 5 levels:
+
+| Level | Range      |
+| ----- | ---------- |
+| 1     | 0 - 0.2    |
+| 2     | 0.21 - 0.4 |
+| 3     | 0.41 - 0.6 |
+| 4     | 0.61 - 0.8 |
+| 5     | 0.81 - 1   |
+
+Increasing the bias towards 1 will lead to an increased likeliness of low-level enchantments, and lowering the bias towards -1 will lead to an increased likeliness of high-level enchantments.
+
+Loot works differently. Instead of a number between 0 and 1, loot starts from a high number between 0.7 and 1, biases it, and then picks the level randomly around the result. This means the bias lowers loot levels but never rules them out: even with a bias of 1, a 5-level enchantment found in loot is only level 1 about a third of the time.
+
+To cap loot levels for a type, set `max-loot-level` on the type in `types.yml`. Loot levels for that type then fall between 1 and the cap, with the same spread as an enchantment that only has that many levels. For example, `max-loot-level: 1` means enchantments of that type are only ever level 1 from loot. Leave it at `-1` for no cap.
+
+```yaml
+  - id: special
+    format: "<gradient:#FB57EC:#EF1DEC>"
+    limit: 1
+    high-level-bias: 0.7
+    max-loot-level: 2 # Special enchants from loot are level 1 or 2.
+    no-grindstone: false
+```
+
+## Book Items
+
+Enchanted books can look different per enchantment type or rarity. Add `book-item` to a type in `types.yml` or a rarity in `rarity.yml`, set to an [item lookup](https://hub.auxilor.io/wiki/eco/the-item-lookup-system-the-item-lookup-system). Books then show that item's model, custom model data, glint and tooltip style.
+
+```yaml
+  - id: legendary
+    display-name: "Legendary"
+    book-item: "enchanted_book item_model:myserver:legendary_book" # Legendary books use a custom model.
+```
+
+The book is chosen by the first enchantment in display order. If its type and its rarity both set `book-item`, `display.book-item.priority` in `config.yml` decides which is used: `type` (the default) or `rarity`. The change is visual only: the item is still a normal enchanted book, so anvils and combining work as usual. Books that already have their own model, custom model data, glint or tooltip style are not changed.
+
+<hr/>
+
+## Where to go next
+
+- **The systems being tuned:** revisit [The Gameplay](the-gameplay) for how rarity and types drive obtaining.
+- **Where these options live:** the [Plugin Config](plugin-config) reference.
+

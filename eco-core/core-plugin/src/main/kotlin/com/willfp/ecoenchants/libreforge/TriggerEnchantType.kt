@@ -1,0 +1,61 @@
+package com.willfp.ecoenchants.libreforge
+
+import com.willfp.eco.core.fast.fast
+import com.willfp.ecoenchants.enchant.wrap
+import com.willfp.ecoenchants.plugin
+import com.willfp.ecoenchants.type.EnchantmentType
+import com.willfp.libreforge.toDispatcher
+import com.willfp.libreforge.triggers.Trigger
+import com.willfp.libreforge.triggers.TriggerData
+import com.willfp.libreforge.triggers.TriggerParameter
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.enchantment.EnchantItemEvent
+
+class TriggerEnchantType(
+    private val type: EnchantmentType
+) : Trigger("enchant_${type.id}") {
+    override val description = "Fires when the player applies this enchantment type to an item in an enchanting table."
+
+    override val categories = setOf("inventory")
+
+    override val parameters = setOf(
+        TriggerParameter.PLAYER,
+        TriggerParameter.LOCATION,
+        TriggerParameter.ITEM,
+        TriggerParameter.VALUE,
+        TriggerParameter.TEXT
+    )
+
+    override val parameterDescriptions = mapOf(
+        TriggerParameter.ITEM to "The item that was enchanted",
+        TriggerParameter.VALUE to "The experience level cost of the enchantment",
+        TriggerParameter.TEXT to "The ID of the enchantment type that was applied"
+    )
+
+    override var isEnabled = true
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    fun handleLevelling(event: EnchantItemEvent) {
+        val player = event.enchanter
+
+        plugin.scheduler.on(player).runLater({
+            if (
+                event.item.fast().getEnchants(true).keys
+                    .map { it.wrap() }
+                    .any { it.type == type }
+            ) {
+                this.dispatch(
+                    player.toDispatcher(),
+                    TriggerData(
+                        player = player,
+                        location = player.location,
+                        item = event.item,
+                        value = event.expLevelCost.toDouble(),
+                        text = type.id
+                    )
+                )
+            }
+        }, 2)
+    }
+}

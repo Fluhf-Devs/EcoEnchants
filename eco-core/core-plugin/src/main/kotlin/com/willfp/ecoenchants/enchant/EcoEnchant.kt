@@ -1,0 +1,141 @@
+package com.willfp.ecoenchants.enchant
+
+import com.willfp.eco.core.enchant.CustomEnchantment
+import com.willfp.eco.core.registry.KRegistrable
+import com.willfp.eco.util.toComponent
+import com.willfp.ecoenchants.display.getFormattedName
+import com.willfp.ecoenchants.display.getFormattedNameComponent
+import com.willfp.libreforge.conditions.ConditionList
+import com.willfp.libreforge.slot.SlotType
+import net.kyori.adventure.text.Component
+import org.bukkit.NamespacedKey
+import org.bukkit.enchantments.Enchantment
+import org.bukkit.inventory.ItemStack
+
+interface EcoEnchant : KRegistrable, EcoEnchantLike, CustomEnchantment {
+    /**
+     * The key.
+     */
+    override val enchantmentKey: NamespacedKey
+
+    /**
+     * If this enchantment conflicts with all other enchantments.
+     */
+    val conflictsWithEverything: Boolean
+
+    /**
+     * The conflicts.
+     */
+    val conflicts: Set<Enchantment>
+
+    /**
+     * The required enchantments.
+     */
+    val required: Set<Enchantment>
+
+    /**
+     * The requirements, with minimum levels and whether they are removed on apply.
+     *
+     * Defaults to [required] at level 1.
+     */
+    val requirements: List<EnchantmentRequirement>
+        get() = required.map { EnchantmentRequirement(it.key.key) }
+
+    /**
+     * The enchantment slots.
+     */
+    val slots: Set<SlotType>
+        get() = targets.map { it.slot }.toSet()
+
+    /**
+     * The conditions to use the enchantment.
+     */
+    val conditions: ConditionList
+
+    /**
+     * If the enchantment is enchantable.
+     */
+    override val isObtainableThroughEnchanting: Boolean
+
+    /**
+     * If the enchantment is tradeable.
+     */
+    override val isObtainableThroughTrading: Boolean
+
+    /**
+     * If the enchantment is discoverable via a given [type].
+     */
+    override fun isObtainableThrough(type: DiscoveryType): Boolean
+
+    /**
+     * If the enchantment is discoverable via any method.
+     */
+    override val isObtainableThroughDiscovery: Boolean
+        get() = DiscoveryType.entries.any { isObtainableThrough(it) }
+
+    /**
+     * If the enchantment is hidden from the enchant GUI.
+     */
+    override val isHiddenFromGui: Boolean
+
+    /**
+     * Get a certain [level].
+     */
+    fun getLevel(level: Int): EcoEnchantLevel
+
+    /**
+     * Get if this enchantment conflicts with [other], only checking one way.
+     */
+    fun conflictsWithDirectly(other: Enchantment): Boolean
+
+    /**
+     * Get if this enchantment conflicts with [other].
+     */
+    override fun conflictsWith(other: Enchantment): Boolean {
+        if (this.conflictsWithDirectly(other)) {
+            return true
+        }
+
+        other.ecoEnchant?.let {
+            return it.conflictsWithDirectly(this.enchantment)
+        }
+
+        return false
+    }
+
+    override val registryDescription: Component
+        get() = nameTranslationKey?.let { Component.translatable(it) } ?: getFormattedNameComponent(0)
+
+    override val translationKey: String
+        get() = nameTranslationKey ?: "ecoenchants:enchantment.$id"
+
+    override fun displayName(level: Int): Component {
+        return nameTranslationKey?.let { Component.translatable(it, getFormattedName(level)) }
+            ?: getFormattedName(level).toComponent()
+    }
+
+    override fun canEnchantItem(item: ItemStack): Boolean {
+        return canEnchantItem(item, emptyList())
+    }
+
+    /**
+     * Get if all required enchantments are in [other], ignoring levels.
+     */
+    @Deprecated("Ignores required levels, and overrides of this are no longer called. Pass a map with levels instead.")
+    fun hasRequiredEnchantments(other: Collection<Enchantment>): Boolean =
+        requirements.all { requirement ->
+            other.any { otherEnchant -> requirement.matches(otherEnchant) }
+        }
+
+    /**
+     * Get if all required enchantments are in [other] at the required levels.
+     */
+    fun hasRequiredEnchantments(other: Map<Enchantment, Int>): Boolean =
+        requirements.all { it.isMetBy(other) }
+
+    /**
+     * Get if [other] is removed from the item when this enchantment is applied.
+     */
+    fun removesOnApply(other: Enchantment): Boolean =
+        requirements.any { it.remove && it.matches(other) }
+}

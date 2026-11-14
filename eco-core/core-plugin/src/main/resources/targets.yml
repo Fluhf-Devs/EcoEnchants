@@ -1,0 +1,150 @@
+# These are extra items that cannot normally be enchanted in an enchanting table,
+# add items to this list to be able to enchant them.
+
+extra-enchantable-items:
+  - "*elytra"
+  - "*shield"
+  - "*flint_and_steel"
+  - "*shears"
+  - "*carrot_on_a_stick"
+  - "*player_head"
+
+# A target consists of items and a slot.
+
+# The options for slot are mainhand, offhand, hands, helmet, chestplate,
+# leggings, boots, armor, any, a number from 0-40 (to specify an exact slot),
+# or a list of slots like "9, 10, 11, mainhand"
+
+# The slot defines when the enchantment will activate, for example if you have
+# a target with slot "mainhand", the enchantment will activate whenever the item is
+# in your mainhand.
+
+targets:
+  - id: pickaxe
+    display-name: "Pickaxes"
+    slot: mainhand
+    items:
+      - "#items_pickaxes"
+
+  - id: axe
+    display-name: "Axes"
+    slot: mainhand
+    items:
+      - "#items_axes"
+
+  - id: hoe
+    display-name: "Hoes"
+    slot: mainhand
+    items:
+      - "#items_hoes"
+
+  - id: shovel
+    display-name: "Shovels"
+    slot: mainhand
+    items:
+      - "#items_shovels"
+
+  - id: sword
+    display-name: "Swords"
+    slot: mainhand
+    items:
+      - "#items_swords"
+
+  - id: spear
+    display-name: "Spear"
+    slot: mainhand
+    items:
+      - "#items_spears"
+
+  - id: helmet
+    display-name: "Helmets"
+    slot: armor
+    items:
+      - "#items_head_armor"
+
+  - id: chestplate
+    display-name: "Chestplates"
+    slot: armor
+    items:
+      - "#items_chest_armor"
+
+  - id: leggings
+    display-name: "Leggings"
+    slot: armor
+    items:
+      - "#items_leg_armor"
+
+  - id: boots
+    display-name: "Boots"
+    slot: armor
+    items:
+      - "#items_foot_armor"
+
+  - id: armor
+    display-name: "Armor"
+    slot: armor
+    items:
+      - "#items_head_armor"
+      - "#items_chest_armor"
+      - "#items_leg_armor"
+      - "#items_foot_armor"
+
+  - id: trident
+    display-name: "Tridents"
+    slot: mainhand
+    items:
+      - "*trident"
+
+  - id: bow
+    display-name: "Bows"
+    slot: mainhand
+    items:
+      - "*bow"
+
+  - id: crossbow
+    display-name: "Crossbows"
+    slot: mainhand
+    items:
+      - "*crossbow"
+
+  - id: shears
+    display-name: "Shears"
+    slot: mainhand
+    items:
+      - "*shears"
+
+  - id: shield
+    display-name: "Shields"
+    slot: hands
+    items:
+      - "*shield"
+
+  - id: fishing_rod
+    display-name: "Fishing Rods"
+    slot: mainhand
+    items:
+      - "*fishing_rod"
+
+  - id: flint_and_steel
+    display-name: "Flint and Steels"
+    slot: mainhand
+    items:
+      - "*flint_and_steel"
+
+  - id: carrot_on_a_stick
+    display-name: "Carrots on Sticks"
+    slot: mainhand
+    items:
+      - "*carrot_on_a_stick"
+
+  - id: elytra
+    display-name: "Elytra"
+    slot: armor
+    items:
+      - "*elytra"
+
+  - id: mace
+    display-name: "Mace"
+    slot: mainhand
+    items:
+      - "*mace"

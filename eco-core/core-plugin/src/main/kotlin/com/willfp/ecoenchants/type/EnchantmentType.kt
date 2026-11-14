@@ -1,0 +1,49 @@
+package com.willfp.ecoenchants.type
+
+import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.registry.Registrable
+import com.willfp.ecoenchants.display.getBookItem
+import com.willfp.ecoenchants.enchant.infiniteIfNegative
+import com.willfp.ecoenchants.libreforge.TriggerEnchantType
+import com.willfp.libreforge.triggers.Triggers
+import java.util.Objects
+
+class EnchantmentType(
+    internal val config: Config
+) : Registrable {
+    val id = config.getString("id")
+    val format = config.getString("format")
+    val limit = config.getInt("limit").infiniteIfNegative()
+    val highLevelBias = config.getDouble("high-level-bias").coerceAtMost(0.999)
+    val maxLootLevel = config.getInt("max-loot-level").infiniteIfNegative()
+    val noGrindstone = config.getBool("no-grindstone")
+    val bookItem = config.getBookItem()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        if (other !is EnchantmentType) {
+            return false
+        }
+
+        return other.id == this.id
+    }
+
+    override fun onRegister() {
+        Triggers.register(TriggerEnchantType(this))
+    }
+
+    override fun getID(): String {
+        return this.id
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(id)
+    }
+
+    override fun toString(): String {
+        return "EnchantmentType{$id}"
+    }
+}

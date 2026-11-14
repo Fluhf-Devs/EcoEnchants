@@ -1,0 +1,114 @@
+package com.willfp.ecoenchants.mechanics
+
+import com.willfp.eco.core.fast.fast
+import com.willfp.eco.util.NumberUtils
+import com.willfp.ecoenchants.enchant.DiscoveryType
+import com.willfp.ecoenchants.enchant.EcoEnchants
+import com.willfp.ecoenchants.enchant.infiniteIfNegative
+import com.willfp.ecoenchants.enchant.removeEnchantsReplacedBy
+import com.willfp.ecoenchants.plugin
+import com.willfp.ecoenchants.target.EnchantmentTargets.isEnchantable
+import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Entity
+import org.bukkit.entity.Item
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerFishEvent
+import org.bukkit.event.world.LootGenerateEvent
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.EnchantmentStorageMeta
+import kotlin.math.ceil
+
+object LootSupport : Listener {
+    @EventHandler
+    fun onGenerate(event: LootGenerateEvent) {
+        if (!plugin.configYml.getBool("loot.enabled") || plugin.isDisabledIn(event.world)) {
+            return
+        }
+
+        val discoveryType = event.discoveryType()
+
+        for (itemStack in event.loot) {
+            modifyItem(itemStack, discoveryType)
+        }
+    }
+
+    @EventHandler
+    fun onFish(event: PlayerFishEvent) {
+        if (!plugin.configYml.getBool("loot.enabled") || plugin.isDisabledIn(event.player.world)) {
+            return
+        }
+
+        if (event.state != PlayerFishEvent.State.CAUGHT_FISH) {
+            return
+        }
+
+        val caught = event.caught as? Item ?: return
+        modifyItem(caught.itemStack, DiscoveryType.FISHING)
+    }
+
+    private fun modifyItem(item: ItemStack, discoveryType: DiscoveryType) {
+        if (!item.isEnchantable) {
+            return
+        }
+
+        val enchants = item.fast().getEnchants(true)
+        val added = mutableListOf<Enchantment>()
+
+        var multiplier = 0.01
+
+        if (item.type == Material.ENCHANTED_BOOK) {
+            multiplier *= plugin.configYml.getDouble("loot.book-multiplier")
+        }
+
+        val enchantments = EcoEnchants.values().shuffled()
+
+        for (enchantment in enchantments) {
+            if (!enchantment.isObtainableThrough(discoveryType)) {
+                continue
+            }
+
+            if (!enchantment.canEnchantItem(item, enchants)) {
+                continue
+            }
+
+            if (NumberUtils.randFloat(0.0, 1.0) > enchantment.enchantmentRarity.lootChance * multiplier) {
+                continue
+            }
+
+            if (enchants.size >= plugin.configYml.getInt("anvil.enchant-limit").infiniteIfNegative()) {
+                break
+            }
+
+            val maxLevel = enchantment.maximumLevel.coerceAtMost(enchantment.type.maxLootLevel)
+
+            val levelPart1 = NumberUtils.bias(NumberUtils.randFloat(0.7, 1.0), enchantment.type.highLevelBias)
+            val levelPart2 = NumberUtils.triangularDistribution(0.0, 1.0, levelPart1)
+            val level = ceil(levelPart2 * maxLevel).coerceIn(1.0..maxLevel.toDouble()).toInt()
+
+            multiplier /= plugin.configYml.getDouble("loot.reduction").takeIf { it > 0 } ?: 1.0
+
+            enchants[enchantment.enchantment] = level
+            added += enchantment.enchantment
+        }
+
+        val meta = item.itemMeta
+        if (meta is EnchantmentStorageMeta) {
+            enchants.forEach { (enchant, level) -> meta.addStoredEnchant(enchant, level, true) }
+        } else {
+            enchants.forEach { (enchant, level) -> meta.addEnchant(enchant, level, true) }
+        }
+        meta.removeEnchantsReplacedBy(added)
+        item.itemMeta = meta
+    }
+}
+
+private fun LootGenerateEvent.discoveryType(): DiscoveryType {
+    val key = lootTable.key.key
+    return when {
+        "hero_of_the_village" in key -> DiscoveryType.RAIDS
+        inventoryHolder is Entity -> DiscoveryType.MOB_DROPS
+        else -> DiscoveryType.CHESTS
+    }
+}

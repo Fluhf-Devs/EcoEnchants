@@ -1,0 +1,118 @@
+package com.willfp.ecoenchants.mechanics
+
+import com.willfp.eco.core.fast.fast
+import com.willfp.eco.util.NumberUtils
+import com.willfp.ecoenchants.enchant.EcoEnchants
+import com.willfp.ecoenchants.enchant.infiniteIfNegative
+import com.willfp.ecoenchants.enchant.removeEnchantsReplacedBy
+import com.willfp.ecoenchants.plugin
+import com.willfp.ecoenchants.target.EnchantmentTargets.isEnchantable
+import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.entity.VillagerAcquireTradeEvent
+import org.bukkit.inventory.MerchantRecipe
+import org.bukkit.inventory.meta.EnchantmentStorageMeta
+import kotlin.math.ceil
+
+object VillagerSupport : Listener {
+    @EventHandler
+    fun onTrade(event: VillagerAcquireTradeEvent) {
+        if (!plugin.configYml.getBool("villager.enabled") || plugin.isDisabledIn(event.entity.world)) {
+            return
+        }
+
+        val result = event.recipe.result.clone()
+
+        if (!result.isEnchantable) {
+            return
+        }
+
+        val enchants = result.fast().getEnchants(true)
+        val added = mutableListOf<Enchantment>()
+
+        if (NumberUtils.randFloat(0.0, 100.0) < plugin.configYml.getDouble("villager.pass-through-chance")) {
+            return
+        }
+
+        var multiplier = 0.01
+
+        if (result.type == Material.ENCHANTED_BOOK) {
+            multiplier *= plugin.configYml.getDouble("villager.book-multiplier")
+        }
+
+        val enchantments = EcoEnchants.values().shuffled()
+
+        for (enchantment in enchantments) {
+            if (!enchantment.isObtainableThroughTrading) {
+                continue
+            }
+
+            if (!enchantment.canEnchantItem(result, enchants)) {
+                continue
+            }
+
+            if (NumberUtils.randFloat(0.0, 1.0) > enchantment.enchantmentRarity.villagerChance * multiplier) {
+                continue
+            }
+
+            if (enchants.size >= plugin.configYml.getInt("anvil.enchant-limit").infiniteIfNegative()) {
+                break
+            }
+
+
+            val maxLevel = enchantment.maximumLevel
+
+            val levelPart1 = event.recipe.ingredients[0].amount / 64.0
+            val levelPart2 = NumberUtils.triangularDistribution(0.0, 1.0, levelPart1)
+            val levelPart3 = NumberUtils.bias(levelPart2, enchantment.type.highLevelBias)
+            val level = ceil(levelPart3 * maxLevel).coerceIn(1.0..maxLevel.toDouble()).toInt()
+
+            multiplier /= plugin.configYml.getDouble("villager.reduction").takeIf { it > 0 } ?: 1.0
+
+            if (result.type == Material.ENCHANTED_BOOK) {
+                // Book trades are intentionally limited to exactly one enchantment, so any
+                // enchantment the trade originally offered is discarded when a custom one rolls.
+                enchants.clear()
+                enchants[enchantment.enchantment] = level
+                break
+            } else {
+                enchants[enchantment.enchantment] = level
+                added += enchantment.enchantment
+            }
+        }
+
+        val meta = result.itemMeta
+        if (meta is EnchantmentStorageMeta) {
+            // Cleared so the book ends up with only the enchantments rolled above, keeping
+            // book trades to a single enchantment (see the comment on enchants.clear() above)
+            for (enchant in meta.storedEnchants.keys) {
+                meta.removeStoredEnchant(enchant)
+            }
+
+            for ((enchant, level) in enchants) {
+                meta.addStoredEnchant(enchant, level, true)
+            }
+        } else {
+            for ((enchant, level) in enchants) {
+                meta.removeEnchant(enchant)
+                meta.addEnchant(enchant, level, true)
+            }
+        }
+        meta.removeEnchantsReplacedBy(added)
+        result.itemMeta = meta
+
+        val recipe = MerchantRecipe(
+            result,
+            event.recipe.uses,
+            event.recipe.maxUses,
+            event.recipe.hasExperienceReward(),
+            event.recipe.villagerExperience,
+            event.recipe.priceMultiplier
+        )
+
+        recipe.ingredients = event.recipe.ingredients
+        event.recipe = recipe
+    }
+}
